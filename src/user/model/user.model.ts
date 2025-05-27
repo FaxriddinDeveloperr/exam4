@@ -2,12 +2,11 @@ import {
     Table,
     Column,
     Model,
-    DataType,
-    ForeignKey,
-  } from 'sequelize-typescript';
+    DataType 
+ } from 'sequelize-typescript';
   
   @Table({ tableName: 'users' })
-  export class User extends Model<User> {
+  export class User extends Model {
     @Column({
       type: DataType.STRING,
       allowNull: false,
@@ -28,12 +27,17 @@ import {
     email: string;
   
     @Column({
-      type: DataType.ENUM('admin', 'user', 'moderator'),
-      allowNull: false,
-      defaultValue: 'user',
+      type: DataType.ENUM("admin", "buydet", "seller","super_admin"),
+      defaultValue: "buydet",
     })
     role: string;
-  
+
+    @Column({
+        type: DataType.BOOLEAN,
+        defaultValue: false
+    })
+    IsActive: boolean
+    
     @Column({
       type: DataType.STRING,
       allowNull: false,
@@ -41,8 +45,8 @@ import {
     password: string;
   
     @Column({
-      type: DataType.BIGINT,
+      type: DataType.STRING,
     })
-    region: number;
+    region: string;
   }
   
