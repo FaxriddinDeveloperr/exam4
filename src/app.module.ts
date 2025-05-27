@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './user/model/user.model';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -22,6 +23,7 @@ import { User } from './user/model/user.model';
     models:[User]
   }),
    UserModule,
+   CategoryModule
   ],
 
 })
