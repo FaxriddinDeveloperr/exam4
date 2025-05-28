@@ -84,7 +84,7 @@ export class UserService {
       }
       return { data };
     } catch (error) {
-      throw new InternalServerErrorException("aaaaaaaaaaaaa");
+      throw new InternalServerErrorException
     }
   }
 
@@ -98,7 +98,7 @@ export class UserService {
       }
 
       if (
-        users == data.dataValues.id ||
+        users.id == data.dataValues.id ||
         users.role == Role.ADMIN ||
         users.role == Role.SUPER_ADMIN
       ) {
@@ -145,29 +145,32 @@ export class UserService {
     }
   }
 
-  async delet_accaunt(id: number, req: Request) {
-    try {
-      const users = req['user'];
 
-      const data = await this.Model.findByPk(id);
-      if (!data) {
-        throw new NotFoundException('Not fount user by id');
-      }
-      if (
-        !(
-          data.dataValues.id == users.id ||
-          users.role == Role.ADMIN ||
-          users.role == Role.SUPER_ADMIN
-        )
-      ) {
-        throw new ForbiddenException();
-      }
-      await this.Model.destroy({ where: { id } });
-      return { Message: 'Deleted', data: {} };
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
+  // async delet_accaunt(id: number, req: Request) {
+  //   try {
+  //     const users = req['user'];
+
+  //     const data = await this.Model.findByPk(id);
+  //     if (!data) {
+  //       throw new NotFoundException('Not fount user by id');
+  //     }
+  //     if (
+  //       !(
+  //         data.dataValues.id == users.id ||
+  //         users.role == Role.ADMIN ||
+  //         users.role == Role.SUPER_ADMIN
+  //       )
+  //     ) {
+  //       throw new ForbiddenException();
+  //     }
+  //     await this.Model.destroy({ where: { id } });
+  //     return { Message: 'Deleted', data: {} };
+  //   } catch (error) {
+  //     throw new InternalServerErrorException(error.message);
+  //   }
+  // }
+
+
   async reset_password(data: ResetPasswordDto, req: Request) {
     try {
       let users = req['user'];
@@ -191,6 +194,7 @@ export class UserService {
       throw new InternalServerErrorException(error.message);
     }
   }
+
   async refreshToken(req:Request){
     try {
       let users = req["user"]
@@ -206,23 +210,7 @@ export class UserService {
     }
   }
 
-  async Add_admin(id: number){
-    try {
-      const user = await this.Model.findByPk(id)
-      if(!user){
-        throw new NotFoundException("Not fount user by id")
-      }
-
-      user.dataValues.role = Role.ADMIN
-      
-     
-      return {Message: "Add admin", data: await this.Model.update(user.dataValues,{where: {id},returning:true})}
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-
-  AccesToken(peloud: { id: string; role: string }) {
+   AccesToken(peloud: { id: string; role: string }) {
     return this.JWT.sign(peloud, {
       secret: process.env.ACCS_SECRET,
       expiresIn: '1h',

@@ -1,26 +1,21 @@
-import { Injectable } from '@nestjs/common';
-import { CreateOrderItemDto } from './dto/create-order_item.dto';
-import { UpdateOrderItemDto } from './dto/update-order_item.dto';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { Order_Item } from './model/order_item.model';
 
 @Injectable()
 export class OrderItemsService {
-  create(createOrderItemDto: CreateOrderItemDto) {
-    return 'This action adds a new orderItem';
+  constructor(@InjectModel(Order_Item) private readonly Model: typeof Order_Item){}
+
+ async findAll() {
+    try {
+      const data = await this.Model.findAll()
+      if(!data.length){
+        throw new NotFoundException
+      }
+      return {status: 200,  data}
+    } catch (error) {
+      throw new InternalServerErrorException(error.message)
+    }
   }
 
-  findAll() {
-    return `This action returns all orderItems`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} orderItem`;
-  }
-
-  update(id: number, updateOrderItemDto: UpdateOrderItemDto) {
-    return `This action updates a #${id} orderItem`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} orderItem`;
-  }
 }

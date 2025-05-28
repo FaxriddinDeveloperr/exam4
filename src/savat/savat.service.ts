@@ -1,23 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateSavatDto } from './dto/create-savat.dto';
-import { UpdateSavatDto } from './dto/update-savat.dto';
-
+import { InjectModel } from '@nestjs/sequelize';
+import { Savat } from './model/savat.model';
 @Injectable()
 export class SavatService {
-  create(createSavatDto: CreateSavatDto) {
-    return 'This action adds a new savat';
+  constructor(@InjectModel(Savat) private readonly Model: typeof Savat){}
+
+  async create(createSavatDto: CreateSavatDto) {
+    try {
+      const data = await this.Model.create({...createSavatDto})
+      return {Message: "creted", statusCode: 201, data}
+    } catch (error) {
+      throw new InternalServerErrorException(error.message)
+    }
   }
 
   findAll() {
-    return `This action returns all savat`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} savat`;
-  }
-
-  update(id: number, updateSavatDto: UpdateSavatDto) {
-    return `This action updates a #${id} savat`;
+    
   }
 
   remove(id: number) {
