@@ -213,7 +213,7 @@ export class UserService {
         throw new NotFoundException("Not fount user by id")
       }
 
-      user.dataValues.role = Role.SUPER_ADMIN
+      user.dataValues.role = Role.ADMIN
       
      
       return {Message: "Add admin", data: await this.Model.update(user.dataValues,{where: {id},returning:true})}
