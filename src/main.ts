@@ -23,11 +23,7 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
-<<<<<<< HEAD
-    })
-=======
     }),
->>>>>>> 2100402c22aa3414ed78ba14a88f559b2176acb9
   );
 
   await app.listen(Port, () => {

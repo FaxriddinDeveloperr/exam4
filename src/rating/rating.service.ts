@@ -4,10 +4,11 @@ import { UpdateRatingDto } from './dto/update-rating.dto';
 import { Rating } from './model/rating.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { retry } from 'rxjs';
+import { User } from 'src/user/model/user.model';
 
 @Injectable()
 export class RatingService {
-  constructor(@InjectModel(Rating) private model: typeof Rating) {}
+  constructor(@InjectModel(Rating) private model: typeof Rating) { }
 
   async createRaring(createRatingDto: CreateRatingDto) {
     try {
@@ -24,8 +25,8 @@ export class RatingService {
 
   async getAllRatings() {
     try {
-      const data = await this.model.findAll();
-      if(!data.length){
+      const data = await this.model.findAll({ include: { model: User } });
+      if (!data.length) {
         throw new NotFoundException('Ratings not found')
       }
       return {
@@ -40,8 +41,8 @@ export class RatingService {
 
   async getRatingById(id: number) {
     try {
-      const ratingById = await this.model.findByPk(id)
-      if(!ratingById){
+      const ratingById = await this.model.findByPk(+id, { include: { model: User } })
+      if (!ratingById) {
         throw new NotFoundException('Rating by this ID not found')
       }
       return {
@@ -57,7 +58,7 @@ export class RatingService {
   async updateRatignById(id: number, updateRatingDto: UpdateRatingDto) {
     try {
       const data = await this.model.findByPk(id)
-      if(!data){
+      if (!data) {
         throw new NotFoundException('Rating by this ID not found')
       }
       const updatedRating = await this.model.update(updateRatingDto, {
@@ -74,7 +75,21 @@ export class RatingService {
     }
   }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} rating`;
-  // }
+  async deleteRatingById(id: number) {
+    try {
+      const data = await this.model.findByPk(id)
+      if (!data) {
+        throw new NotFoundException('Rating by this ID not found')
+      }
+      const deletedData = await this.model.destroy({ where: { id } }
+      )
+      return {
+        statusCode: 200,
+        message: 'success',
+        data: {}
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message)
+    }
+  }
 }
