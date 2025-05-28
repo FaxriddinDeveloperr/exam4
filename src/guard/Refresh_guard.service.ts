@@ -5,7 +5,7 @@ import { Request } from 'express';
 
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class RefreshGuard implements CanActivate {
   constructor(private readonly JWT: JwtService){}
   canActivate(
     context: ExecutionContext,
@@ -16,7 +16,7 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException("Not fount Token")
     }
     try {
-      const data = this.JWT.verify(Token,{secret: process.env.ACCS_SECRET})
+      const data = this.JWT.verify(Token,{secret: process.env.REFRESH_SECRET})
       request["user"] = data
       return true
     } catch (error) {

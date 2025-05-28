@@ -8,7 +8,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { RegisterUserdto } from './dto/register-user.dto';
+import { RegisterUserdto, Role } from './dto/register-user.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './model/user.model';
 import { LoginUserdto } from './dto/login-user.dto';
@@ -84,13 +84,13 @@ export class UserService {
       }
       return { data };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new InternalServerErrorException("aaaaaaaaaaaaa");
     }
   }
 
   async findOne(id: number, req: Request) {
     try {
-      const userId = req['user'];
+      const users = req['user'];
 
       const data = await this.Model.findByPk(id);
       if (!data) {
@@ -98,9 +98,9 @@ export class UserService {
       }
 
       if (
-        userId == data.dataValues.id ||
-        data.dataValues.role == 'admin' ||
-        data.dataValues.role == 'super_admin'
+        users == data.dataValues.id ||
+        users.role == Role.ADMIN ||
+        users.role == Role.SUPER_ADMIN
       ) {
         return { data };
       } else {
@@ -113,13 +113,41 @@ export class UserService {
     }
   }
 
-  //  async update(id: number, updateUserdto: UpdateUserdto) {
-  //     return `This action updates a #${id} user`;
-  //   }
+  async update(updateUserdto: UpdateUserdto, id: number, req: Request) {
+    try {
+      const users = req['user'];
+      const data = await this.Model.findByPk(id);
+      if (!data) {
+        throw new NotFoundException('Not fount user by id');
+      }
+
+      if (
+        !(
+          data.id == users.id ||
+          users.role == Role.ADMIN ||
+          users.role == Role.SUPER_ADMIN
+        )
+      ) {
+        throw new UnauthorizedException(
+          "Malumotlarni o'zgartirishga huquqingiz yetarliy emas",
+        );
+      }
+      return {
+        statuscode: 201,
+        Message: 'Update',
+        data: await this.Model.update(updateUserdto, {
+          where: { id },
+          returning: true,
+        }),
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
 
   async delet_accaunt(id: number, req: Request) {
     try {
-      const userId = req['user'];
+      const users = req['user'];
 
       const data = await this.Model.findByPk(id);
       if (!data) {
@@ -127,9 +155,9 @@ export class UserService {
       }
       if (
         !(
-          data.dataValues.id == userId ||
-          data.dataValues.role == 'admin' ||
-          data.dataValues.role == 'super_admin'
+          data.dataValues.id == users.id ||
+          users.role == Role.ADMIN ||
+          users.role == Role.SUPER_ADMIN
         )
       ) {
         throw new ForbiddenException();
@@ -142,21 +170,53 @@ export class UserService {
   }
   async reset_password(data: ResetPasswordDto, req: Request) {
     try {
-      let userId = req['user'];
+      let users = req['user'];
+      
       const user = await this.Model.findOne({ where: { email: data.email } });
       if (!user) {
         throw new NotFoundException('User not fount by id');
       }
-      if (user.dataValues.id !== userId) {
+      if (user.dataValues.id !== users.id) {
+        
         throw new UnauthorizedException();
       }
-      user.dataValues.password = data.password;
-      let newData = await this.Model.update(user, { where: { id: userId },returning:true});
+
+      user.dataValues.password = bcrypt.hashSync(data.password, 10);
       
-      return {statuscode:201,
-        message: "Update Password",
-        data:newData,
+      return { message: 'Update Password',date: await this.Model.update(user.dataValues, {
+        where: { id: users.id },
+        returning: true,
+      }) };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+  async refreshToken(req:Request){
+    try {
+      let users = req["user"]
+      const data = await this.Model.findByPk(users.id)
+      if(!data){
+        throw new UnauthorizedException("Not fount by id")
       }
+
+      const accsestoken = this.AccesToken({id:data.id, role: data.role})
+      return {accsestoken}
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async Add_admin(id: number){
+    try {
+      const user = await this.Model.findByPk(id)
+      if(!user){
+        throw new NotFoundException("Not fount user by id")
+      }
+
+      user.dataValues.role = Role.SUPER_ADMIN
+      
+     
+      return {Message: "Add admin", data: await this.Model.update(user.dataValues,{where: {id},returning:true})}
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
