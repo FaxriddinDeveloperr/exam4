@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { HttpStatus, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 const Port = Number(process.env.PORT) || 4000;
 
@@ -23,7 +23,11 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+<<<<<<< HEAD
     })
+=======
+    }),
+>>>>>>> 2100402c22aa3414ed78ba14a88f559b2176acb9
   );
 
   await app.listen(Port, () => {
