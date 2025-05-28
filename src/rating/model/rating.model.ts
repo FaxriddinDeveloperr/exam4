@@ -1,32 +1,34 @@
-import { Model } from 'sequelize';
 import {
-  AllowNull,
   Column,
   DataType,
-  ForeignKey,
-  HasOne,
   Table,
+  ForeignKey,
+  BelongsTo,
+  Model
 } from 'sequelize-typescript';
 import { User } from 'src/user/model/user.model';
 
 @Table({ tableName: 'rating' })
 export class Rating extends Model {
-
-
-
-
-
-
-  @ForeignKey(() => User)
-  @Column({ field: 'userId' })
-  userId: number;
-
-  @HasOne(() => User)
-  user: User;
-
   @Column({
-    type: DataType.NUMBER,
+    type: DataType.INTEGER,
     allowNull: false,
   })
-  ball: Number;
+  productId: number;
+
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  sellerId: number;
+
+  @BelongsTo(() => User)
+  seller: User;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  ball: number;
 }

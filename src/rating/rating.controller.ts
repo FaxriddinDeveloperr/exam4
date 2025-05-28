@@ -17,26 +17,26 @@ export class RatingController {
 
   @Post()
   create(@Body() createRatingDto: CreateRatingDto) {
-    return this.ratingService.create(createRatingDto);
+    return this.ratingService.createRaring(createRatingDto);
   }
 
   @Get()
   findAll() {
-    return this.ratingService.findAll();
+    return this.ratingService.getAllRatings();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.ratingService.findOne(+id);
+    return this.ratingService.getRatingById(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRatingDto: UpdateRatingDto) {
-    return this.ratingService.update(+id, updateRatingDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateRatingDto: UpdateRatingDto) {
+  //   return this.ratingService.update(+id, updateRatingDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ratingService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.ratingService.remove(+id);
+  // }
 }
