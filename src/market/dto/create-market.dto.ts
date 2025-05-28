@@ -6,23 +6,29 @@ export class CreateMarketDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
   @ApiProperty({ example: 'ID' })
   @IsNumber()
+  @IsNotEmpty()
   seller_id: number;
 
   @ApiProperty({ example: 'reytin_total' })
   @IsNumber()
+  @IsNotEmpty()
   general_reyting: number;
 
   @ApiProperty({ example: 'description' })
   @IsString()
+  @IsNotEmpty()
   description: string;
 
   @ApiProperty({ example: 'reytin_total' })
   @IsString()
+  @IsNotEmpty()
   contact: string;
 
   @ApiProperty({ example: 'follower_count' })
   @IsNumber()
+  @IsNotEmpty()
   follower_count: number;
 }

@@ -17,8 +17,10 @@ import { AuthGuard } from 'src/guard/guard.service';
 import { Request } from 'express';
 import { RoleGuard } from 'src/guard/role.guard';
 import { Roles } from 'src/Decorator/role.decorator';
+import { UpdateUserdto } from './dto/update-user.dto';
+import { RefreshGuard } from 'src/guard/Refresh_guard.service';
 
-@Controller('user')
+@Controller('Auth')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -31,9 +33,19 @@ export class UserController {
   login(@Body() loginUserdto: LoginUserdto) {
     return this.userService.login(loginUserdto);
   }
-  @Get()
+
+  @UseGuards(RoleGuard)
+  @Roles(Role.ADMIN,Role.SUPER_ADMIN)
+  @UseGuards(AuthGuard)
+  @Get("all")
   findAll(){
     return this.userService.findAll()
+  }
+
+  @UseGuards(RefreshGuard)
+  @Get("refreshToket")
+  refreshToken(@Req() req: Request){
+    return this.userService.refreshToken(req)
   }
 
   @UseGuards(AuthGuard)
@@ -51,6 +63,20 @@ export class UserController {
   @UseGuards(AuthGuard)
   @Post('reset_password')
   reset_password(@Body() data: ResetPasswordDto, @Req() req: Request) {
+    
     return this.userService.reset_password(data, req);
   }
+
+
+  @UseGuards(AuthGuard)
+  @Patch("Update/:id")
+  update(@Body() data: UpdateUserdto, @Param("id") id: string, @Req() req:Request){
+    return this.userService.update(data, +id, req)
+  }
+
+  @Post("Add_admin/:id")
+  Add_admin(@Param("id") id: string){
+    return this.userService.Add_admin(+id)
+  }
+
 }
