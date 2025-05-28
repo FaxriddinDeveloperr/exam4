@@ -74,6 +74,9 @@ export class UserController {
     return this.userService.update(data, +id, req)
   }
 
+  @UseGuards(RoleGuard)
+  @Roles(Role.SUPER_ADMIN)
+  @UseGuards(AuthGuard)
   @Post("Add_admin/:id")
   Add_admin(@Param("id") id: string){
     return this.userService.Add_admin(+id)

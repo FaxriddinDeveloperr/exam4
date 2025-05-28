@@ -6,6 +6,9 @@ import { User } from './user/model/user.model';
 import { CategoryModule } from './category/category.module';
 import { Market } from './market/model/market.model';
 import { MarketModule } from './market/market.module';
+import { SavatModule } from './savat/savat.module';
+import { OrderModule } from './order/order.module';
+import { OrderItemsModule } from './order_items/order_items.module';
 
 @Module({
   imports: [
@@ -15,19 +18,29 @@ import { MarketModule } from './market/market.module';
     }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
-      host: process.env.HOST,
-      username: process.env.NAME,
+      host: String(process.env.HOST),
+      username: String(process.env.NAME),
       password: String(process.env.PASS),
       port: Number(process.env.PORTS),
       logging: false,
       database: process.env.DB,
       autoLoadModels: true,
       synchronize: true,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false,
+        },
+      },
+
       models: [User, Market],
     }),
     UserModule,
     CategoryModule,
     MarketModule,
+    SavatModule,
+    OrderModule,
+    OrderItemsModule,
   ],
 })
 export class AppModule {}
