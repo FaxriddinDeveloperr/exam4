@@ -54,9 +54,25 @@ export class RatingService {
     }
   }
 
-  // update(id: number, updateRatingDto: UpdateRatingDto) {
-  //   return `This action updates a #${id} rating`;
-  // }
+  async updateRatignById(id: number, updateRatingDto: UpdateRatingDto) {
+    try {
+      const data = await this.model.findByPk(id)
+      if(!data){
+        throw new NotFoundException('Rating by this ID not found')
+      }
+      const updatedRating = await this.model.update(updateRatingDto, {
+        where: { id },
+        returning: true,
+      })
+      return {
+        statusCode: 200,
+        message: 'success',
+        data: updatedRating
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message)
+    }
+  }
 
   // remove(id: number) {
   //   return `This action removes a #${id} rating`;
