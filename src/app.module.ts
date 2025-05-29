@@ -9,6 +9,8 @@ import { MarketModule } from './market/market.module';
 import { SavatModule } from './savat/savat.module';
 import { OrderModule } from './order/order.module';
 import { OrderItemsModule } from './order_items/order_items.module';
+import { ProductModule } from './product/product.module';
+import { Product } from './product/model/product.entity';
 
 @Module({
   imports: [
@@ -33,7 +35,7 @@ import { OrderItemsModule } from './order_items/order_items.module';
         },
       },
 
-      models: [User, Market],
+      models: [User, Market,Product],
     }),
     UserModule,
     CategoryModule,
@@ -41,6 +43,8 @@ import { OrderItemsModule } from './order_items/order_items.module';
     SavatModule,
     OrderModule,
     OrderItemsModule,
+    ProductModule,
+    
   ],
 })
 export class AppModule {}
