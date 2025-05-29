@@ -19,12 +19,16 @@ import { JwtService } from '@nestjs/jwt';
 import { tracingChannel } from 'diagnostics_channel';
 import { ResetPasswordDto } from './dto/reset_password-user.dto';
 import { Request } from 'express';
+import { MailService } from 'src/mail/mail.service';
+import { totp, authenticator } from 'otplib';
 
+authenticator.options = {window: 10}
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User) private readonly Model: typeof User,
     private readonly JWT: JwtService,
+    private main: MailService,
   ) {}
 
   async register(registerUserdto: RegisterUserdto) {
@@ -39,9 +43,15 @@ export class UserService {
       registerUserdto.password = hash;
 
       const newUser = await this.Model.create({ ...registerUserdto });
-      return { Message: 'registerd', data: newUser };
+
+      const otp = totp.generate(String(process.env.OTP_SECRET))
+
+      await this.main.sendMail(registerUserdto.email,`Sizning otp kokingiz: ${otp} `," Iltimos, ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning." )
+
+      return { Message: "Siz muvofiya qatliy ro'yhaddan o'dtingiz emailingizga borgan tasdiqlash kodi orqaliy shahsingizni tasdiqlayng!",};
+
     } catch (error) {
-      if(error instanceof HttpException) throw error
+      if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException(error.message);
     }
   }
@@ -53,6 +63,10 @@ export class UserService {
       });
       if (!data) {
         throw new NotFoundException('User Not fount');
+      }
+      
+      if(!data.dataValues.IsActive){
+        throw new UnauthorizedException("Siz login qilishdan oldin akkauntingizni follashtiring")
       }
       if (
         !bcrypt.compareSync(loginUserdto.password, data.dataValues.password)
@@ -69,10 +83,9 @@ export class UserService {
         id: data.dataValues.id,
         role: data.dataValues.role,
       });
-
       return { accsestoken, refreshtoken };
     } catch (error) {
-      if(error instanceof HttpException) throw error
+      if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException(error.message);
     }
   }
@@ -85,8 +98,8 @@ export class UserService {
       }
       return { data };
     } catch (error) {
-      if(error instanceof HttpException) throw error
-      throw new InternalServerErrorException
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException();
     }
   }
 
@@ -143,11 +156,10 @@ export class UserService {
         }),
       };
     } catch (error) {
-      if(error instanceof HttpException) throw error
+      if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException(error.message);
     }
   }
-
 
   // async delet_accaunt(id: number, req: Request) {
   //   try {
@@ -173,49 +185,50 @@ export class UserService {
   //   }
   // }
 
-
   async reset_password(data: ResetPasswordDto, req: Request) {
     try {
       let users = req['user'];
-      
+
       const user = await this.Model.findOne({ where: { email: data.email } });
       if (!user) {
         throw new NotFoundException('User not fount by id');
       }
       if (user.dataValues.id !== users.id) {
-        
         throw new UnauthorizedException();
       }
 
       user.dataValues.password = bcrypt.hashSync(data.password, 10);
-      
-      return { message: 'Update Password',date: await this.Model.update(user.dataValues, {
-        where: { id: users.id },
-        returning: true,
-      }) };
+
+      return {
+        message: 'Update Password',
+        date: await this.Model.update(user.dataValues, {
+          where: { id: users.id },
+          returning: true,
+        }),
+      };
     } catch (error) {
-      if(error instanceof HttpException) throw error
+      if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException(error.message);
     }
   }
 
-  async refreshToken(req:Request){
+  async refreshToken(req: Request) {
     try {
-      let users = req["user"]
-      const data = await this.Model.findByPk(users.id)
-      if(!data){
-        throw new UnauthorizedException("Not fount by id")
+      let users = req['user'];
+      const data = await this.Model.findByPk(users.id);
+      if (!data) {
+        throw new UnauthorizedException('Not fount by id');
       }
 
-      const accsestoken = this.AccesToken({id:data.id, role: data.role})
-      return {accsestoken}
+      const accsestoken = this.AccesToken({ id: data.id, role: data.role });
+      return { accsestoken };
     } catch (error) {
-      if(error instanceof HttpException) throw error
+      if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException(error.message);
     }
   }
 
-   AccesToken(peloud: { id: string; role: string }) {
+  AccesToken(peloud: { id: string; role: string }) {
     return this.JWT.sign(peloud, {
       secret: process.env.ACCS_SECRET,
       expiresIn: '1h',

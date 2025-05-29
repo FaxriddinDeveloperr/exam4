@@ -13,6 +13,8 @@ import { ProductModule } from './product/product.module';
 import { Product } from './product/model/product.entity';
 import { AdminModule } from './admin/admin.module';
 import { UploutModule } from './uplout/uplout.module';
+import { MailModule } from './mail/mail.module';
+import { VerifyModule } from './verify/verify.module';
 
 @Module({
   imports: [
@@ -49,6 +51,8 @@ import { UploutModule } from './uplout/uplout.module';
     
     AdminModule,
     UploutModule,
+    MailModule,
+    VerifyModule,
   ],
 })
 export class AppModule {}
