@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { HttpException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateSavatDto } from './dto/create-savat.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Savat } from './model/savat.model';
@@ -11,6 +11,7 @@ export class SavatService {
       const data = await this.Model.create({...createSavatDto})
       return {Message: "creted", statusCode: 201, data}
     } catch (error) {
+       if(error instanceof HttpException) throw error
       throw new InternalServerErrorException(error.message)
     }
   }

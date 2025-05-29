@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Order_Item } from './model/order_item.model';
 
@@ -14,6 +14,7 @@ export class OrderItemsService {
       }
       return {status: 200,  data}
     } catch (error) {
+       if(error instanceof HttpException) throw error
       throw new InternalServerErrorException(error.message)
     }
   }

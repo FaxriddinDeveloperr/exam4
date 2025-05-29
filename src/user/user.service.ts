@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  HttpException,
   HttpStatus,
   Injectable,
   InternalServerErrorException,
@@ -40,6 +41,7 @@ export class UserService {
       const newUser = await this.Model.create({ ...registerUserdto });
       return { Message: 'registerd', data: newUser };
     } catch (error) {
+      if(error instanceof HttpException) throw error
       throw new InternalServerErrorException(error.message);
     }
   }
@@ -70,8 +72,7 @@ export class UserService {
 
       return { accsestoken, refreshtoken };
     } catch (error) {
-      console.log(error);
-
+      if(error instanceof HttpException) throw error
       throw new InternalServerErrorException(error.message);
     }
   }
@@ -84,6 +85,7 @@ export class UserService {
       }
       return { data };
     } catch (error) {
+      if(error instanceof HttpException) throw error
       throw new InternalServerErrorException
     }
   }
@@ -141,6 +143,7 @@ export class UserService {
         }),
       };
     } catch (error) {
+      if(error instanceof HttpException) throw error
       throw new InternalServerErrorException(error.message);
     }
   }
@@ -191,6 +194,7 @@ export class UserService {
         returning: true,
       }) };
     } catch (error) {
+      if(error instanceof HttpException) throw error
       throw new InternalServerErrorException(error.message);
     }
   }
@@ -206,6 +210,7 @@ export class UserService {
       const accsestoken = this.AccesToken({id:data.id, role: data.role})
       return {accsestoken}
     } catch (error) {
+      if(error instanceof HttpException) throw error
       throw new InternalServerErrorException(error.message);
     }
   }
