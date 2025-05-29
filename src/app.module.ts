@@ -15,12 +15,16 @@ import { AdminModule } from './admin/admin.module';
 import { UploutModule } from './uplout/uplout.module';
 import { MailModule } from './mail/mail.module';
 import { VerifyModule } from './verify/verify.module';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    JwtModule.register({
+      global:true
     }),
     SequelizeModule.forRoot({
       dialect: 'postgres',

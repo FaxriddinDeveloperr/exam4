@@ -8,7 +8,6 @@ import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [SequelizeModule.forFeature([User]),
-  JwtModule.register({}),
   MailModule
 ],
   controllers: [UserController],
