@@ -9,8 +9,12 @@ import { MarketModule } from './market/market.module';
 import { SavatModule } from './savat/savat.module';
 import { OrderModule } from './order/order.module';
 import { OrderItemsModule } from './order_items/order_items.module';
+import { ProductModule } from './product/product.module';
+import { Product } from './product/model/product.entity';
 import { AdminModule } from './admin/admin.module';
 import { UploutModule } from './uplout/uplout.module';
+import { ChatModule } from './chat/chat.module';
+import { Chat } from './chat/model/chat.entity';
 
 @Module({
   imports: [
@@ -34,7 +38,8 @@ import { UploutModule } from './uplout/uplout.module';
           rejectUnauthorized: false,
         },
       },
-      models: [User, Market],
+
+      models: [User, Market,Product,Chat],
     }),
     UserModule,
     CategoryModule,
@@ -42,8 +47,11 @@ import { UploutModule } from './uplout/uplout.module';
     SavatModule,
     OrderModule,
     OrderItemsModule,
+    ProductModule,
+    
     AdminModule,
     UploutModule,
+    ChatModule,
   ],
 })
 export class AppModule {}
