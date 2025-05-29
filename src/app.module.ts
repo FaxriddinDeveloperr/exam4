@@ -9,6 +9,8 @@ import { MarketModule } from './market/market.module';
 import { SavatModule } from './savat/savat.module';
 import { OrderModule } from './order/order.module';
 import { OrderItemsModule } from './order_items/order_items.module';
+import { ProductModule } from './product/product.module';
+import { Product } from './product/model/product.entity';
 import { AdminModule } from './admin/admin.module';
 import { UploutModule } from './uplout/uplout.module';
 import { MailModule } from './mail/mail.module';
@@ -36,7 +38,8 @@ import { VerifyModule } from './verify/verify.module';
           rejectUnauthorized: false,
         },
       },
-      models: [User, Market],
+
+      models: [User, Market,Product],
     }),
     UserModule,
     CategoryModule,
@@ -44,6 +47,8 @@ import { VerifyModule } from './verify/verify.module';
     SavatModule,
     OrderModule,
     OrderItemsModule,
+    ProductModule,
+    
     AdminModule,
     UploutModule,
     MailModule,
