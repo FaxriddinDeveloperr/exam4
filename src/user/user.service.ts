@@ -44,7 +44,7 @@ export class UserService {
 
       const newUser = await this.Model.create({ ...registerUserdto });
 
-      const otp = totp.generate(String(process.env.OTP_SECRET))
+      const otp = totp.generate(String(registerUserdto.email))
 
       await this.main.sendMail(registerUserdto.email,`Sizning otp kokingiz: ${otp} `," Iltimos, ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning." )
 

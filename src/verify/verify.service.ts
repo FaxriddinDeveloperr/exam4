@@ -27,7 +27,7 @@ export class VerifyService {
         throw new NotFoundException('Email topilmadi');
       }
       const Token = data.otp;
-      const IsOpt = totp.check(Token, String(process.env.OTP_SECRET))
+      const IsOpt = totp.check(Token, String(user.dataValues.email))
       
       if (!IsOpt) {
         throw new UnprocessableEntityException('Otp xato kiritilgan');
@@ -49,7 +49,7 @@ export class VerifyService {
       if (!data) {
         throw new NotFoundException('Gmail not fount');
       }
-      const otp = totp.generate(String(process.env.OTP_SECRET))
+      const otp = totp.generate(String(data.dataValues.email))
 
       await this.mail.sendMail(
         gmail.email,
