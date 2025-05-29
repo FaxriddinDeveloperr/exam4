@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -22,6 +23,6 @@ export class RoleGuard implements CanActivate {
     if(roles.some((role)=> role == user.role)){
       return true
     }
-    throw new UnauthorizedException
+    throw new ForbiddenException
   }
 }

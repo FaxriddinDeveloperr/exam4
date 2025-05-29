@@ -1,9 +1,7 @@
 import {
-  BadRequestException,
   ConflictException,
   ForbiddenException,
   HttpException,
-  HttpStatus,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -16,7 +14,6 @@ import { LoginUserdto } from './dto/login-user.dto';
 import { UpdateUserdto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { tracingChannel } from 'diagnostics_channel';
 import { ResetPasswordDto } from './dto/reset_password-user.dto';
 import { Request } from 'express';
 import { MailService } from 'src/mail/mail.service';
