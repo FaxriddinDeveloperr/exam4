@@ -10,6 +10,7 @@ import { SavatModule } from './savat/savat.module';
 import { OrderModule } from './order/order.module';
 import { OrderItemsModule } from './order_items/order_items.module';
 import { RatingModule } from './rating/rating.module';
+import { SupportTicketModule } from './support_ticket/support_ticket.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { RatingModule } from './rating/rating.module';
     SavatModule,
     OrderModule,
     OrderItemsModule,
+    SupportTicketModule,
   ],
 })
 export class AppModule {}

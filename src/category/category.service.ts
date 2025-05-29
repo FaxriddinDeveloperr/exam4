@@ -19,7 +19,7 @@ export class CategoryService {
         where: { name: createCategoryDto.name },
       });
       if (data) {
-        throw new ConflictException('Category name already exists');
+        throw new ConflictException(`Category by this name: ${Category.name} not found`);
       }
       const category = await this.model.create({ ...createCategoryDto });
       return {
@@ -52,7 +52,7 @@ export class CategoryService {
     try {
       const categoryById = await this.model.findByPk(id);
       if (!categoryById) {
-        throw new NotFoundException('Category by this ID not found');
+        throw new NotFoundException(`Category by this id:${id} not found`);
       }
       return {
         statusCode: 200,
@@ -68,7 +68,7 @@ export class CategoryService {
     try {
       const data = await this.model.findByPk(id);
       if (!data) {
-        throw new NotFoundException('Category by this ID not found');
+        throw new NotFoundException(`Category by this id:${id} not found`);
       }
       const updatedCategory = await this.model.update(updateCategoryDto, {
         where: { id },
@@ -88,7 +88,7 @@ export class CategoryService {
     try {
       const data = await this.model.findByPk(id);
       if (!data) {
-        throw new NotFoundException('Category by this ID not found');
+        throw new NotFoundException(`Category by this id:${id} not found`);
       }
       const deletedCategory = await this.model.destroy({ where: { id } });
       return {

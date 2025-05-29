@@ -3,7 +3,6 @@ import { CreateRatingDto } from './dto/create-rating.dto';
 import { UpdateRatingDto } from './dto/update-rating.dto';
 import { Rating } from './model/rating.model';
 import { InjectModel } from '@nestjs/sequelize';
-import { retry } from 'rxjs';
 import { User } from 'src/user/model/user.model';
 
 @Injectable()
@@ -43,7 +42,7 @@ export class RatingService {
     try {
       const ratingById = await this.model.findByPk(+id, { include: { model: User } })
       if (!ratingById) {
-        throw new NotFoundException('Rating by this ID not found')
+        throw new NotFoundException(`Rating by this id:${id} not found`)
       }
       return {
         statusCode: 200,
@@ -59,7 +58,7 @@ export class RatingService {
     try {
       const data = await this.model.findByPk(id)
       if (!data) {
-        throw new NotFoundException('Rating by this ID not found')
+        throw new NotFoundException(`Rating by this id:${id} not found`)
       }
       const updatedRating = await this.model.update(updateRatingDto, {
         where: { id },
@@ -79,7 +78,7 @@ export class RatingService {
     try {
       const data = await this.model.findByPk(id)
       if (!data) {
-        throw new NotFoundException('Rating by this ID not found')
+        throw new NotFoundException(`Rating by this id:${id} not found`)
       }
       const deletedData = await this.model.destroy({ where: { id } }
       )
