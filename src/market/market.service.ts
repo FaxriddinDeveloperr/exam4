@@ -29,9 +29,16 @@ export class MarketService {
   async findAllMarket() {
     try {
       const data = await this.model.findAll();
+
       if (!data.length) {
-        throw new NotFoundException();
+        throw new NotFoundException('No markets found');
       }
+
+      return {
+        statusCode: 200,
+        message: 'All markets found',
+        data,
+      };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -40,9 +47,11 @@ export class MarketService {
   async findByIdMarket(id: number) {
     try {
       const market = await this.model.findByPk(id);
+
       if (!market) {
-        throw new NotFoundException(`Market  whith ID ${id} not found`);
+        throw new NotFoundException(`Market with ID ${id} not found`);
       }
+
       return {
         statusCode: 200,
         message: 'Market found',
@@ -55,15 +64,24 @@ export class MarketService {
 
   async updateMarket(id: number, updateMarketDto: UpdateMarketDto) {
     try {
-      const markets = await this.model.findByPk(id);
-      if (!markets) {
-        throw new NotFoundException();
+      const market = await this.model.findByPk(id);
+      if (!market) {
+        throw new NotFoundException(`Market with ID ${id} not found`);
       }
-      const data = await this.model.update(updateMarketDto, {
-        where: { id },
-        returning: true,
-      });
-      return data[1][0];
+
+      const [affectedCount, affectedRows] = await this.model.update(
+        updateMarketDto,
+        {
+          where: { id },
+          returning: true,
+        },
+      );
+
+      return {
+        statusCode: 200,
+        message: 'Market updated successfully',
+        data: affectedRows[0],
+      };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -71,8 +89,18 @@ export class MarketService {
 
   async deleteMarket(id: number) {
     try {
+      const market = await this.model.findByPk(id);
+      if (!market) {
+        throw new NotFoundException(`Market with ID ${id} not found`);
+      }
+
       await this.model.destroy({ where: { id } });
-      return { data: {} };
+
+      return {
+        statusCode: 200,
+        message: 'Market deleted successfully',
+        data: {},
+      };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

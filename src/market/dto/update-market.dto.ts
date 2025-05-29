@@ -13,12 +13,12 @@ export class UpdateMarketDto {
   @IsOptional()
   name: string;
 
-  @ApiProperty({ example: 'ID' })
+  @ApiProperty({ example: 1 })
   @IsNumber()
   @IsOptional()
   seller_id: number;
 
-  @ApiProperty({ example: 'reytin_total' })
+  @ApiProperty({ example: 1 })
   @IsNumber()
   @IsOptional()
   general_reyting: number;
@@ -33,7 +33,7 @@ export class UpdateMarketDto {
   @IsOptional()
   contact: string;
 
-  @ApiProperty({ example: 'follower_count' })
+  @ApiProperty({ example: 1 })
   @IsNumber()
   @IsOptional()
   follower_count: number;

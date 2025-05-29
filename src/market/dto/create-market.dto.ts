@@ -7,12 +7,12 @@ export class CreateMarketDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ example: 'ID' })
+  @ApiProperty({ example: 1 })
   @IsNumber()
   @IsNotEmpty()
   seller_id: number;
 
-  @ApiProperty({ example: 'reytin_total' })
+  @ApiProperty({ example: 5 })
   @IsNumber()
   @IsNotEmpty()
   general_reyting: number;
@@ -27,7 +27,7 @@ export class CreateMarketDto {
   @IsNotEmpty()
   contact: string;
 
-  @ApiProperty({ example: 'follower_count' })
+  @ApiProperty({ example: 1 })
   @IsNumber()
   @IsNotEmpty()
   follower_count: number;
