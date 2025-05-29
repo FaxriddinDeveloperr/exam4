@@ -19,7 +19,9 @@ import { RoleGuard } from 'src/guard/role.guard';
 import { Roles } from 'src/Decorator/role.decorator';
 import { UpdateUserdto } from './dto/update-user.dto';
 import { RefreshGuard } from 'src/guard/Refresh_guard.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Auth")
 @Controller('Auth')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -54,11 +56,15 @@ export class UserController {
     return this.userService.findOne(+id, req);
   }
 
-  @UseGuards(AuthGuard)
-  @Delete('delet_accaunt/:id')
-  delet_accaunt(@Param('id') id: string, @Req() req: Request) {
-    return this.userService.delet_accaunt(+id, req);
-  }
+
+
+  // @UseGuards(AuthGuard)
+  // @Delete('delet_accaunt/:id')
+  // delet_accaunt(@Param('id') id: string, @Req() req: Request) {
+  //   return this.userService.delet_accaunt(+id, req);
+  // }
+
+
 
   @UseGuards(AuthGuard)
   @Post('reset_password')
@@ -72,14 +78,6 @@ export class UserController {
   @Patch("Update/:id")
   update(@Body() data: UpdateUserdto, @Param("id") id: string, @Req() req:Request){
     return this.userService.update(data, +id, req)
-  }
-
-  @UseGuards(RoleGuard)
-  @Roles(Role.SUPER_ADMIN)
-  @UseGuards(AuthGuard)
-  @Post("Add_admin/:id")
-  Add_admin(@Param("id") id: string){
-    return this.userService.Add_admin(+id)
   }
 
 }

@@ -20,19 +20,10 @@ export class RegisterUserdto {
     @IsPhoneNumber("UZ")
     phone: string
 
-    @ApiProperty({example: false})
-    @IsBoolean()
-    IsActive: boolean
-
     @ApiProperty({example: "usmonqulovabduhamid00@gmail.com"})
     @IsEmail()
     @IsNotEmpty()
     email: string
-    
-    @ApiProperty({example: "seller buydet"})
-    @IsString()
-    @IsEnum(Role)
-    role: Role.BUYDET | Role.SELLER
 
     @ApiProperty({example: "50803006730015"})
     @IsString()

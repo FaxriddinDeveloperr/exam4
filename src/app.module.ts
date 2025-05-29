@@ -9,6 +9,8 @@ import { MarketModule } from './market/market.module';
 import { SavatModule } from './savat/savat.module';
 import { OrderModule } from './order/order.module';
 import { OrderItemsModule } from './order_items/order_items.module';
+import { AdminModule } from './admin/admin.module';
+import { UploutModule } from './uplout/uplout.module';
 
 @Module({
   imports: [
@@ -32,7 +34,6 @@ import { OrderItemsModule } from './order_items/order_items.module';
           rejectUnauthorized: false,
         },
       },
-
       models: [User, Market],
     }),
     UserModule,
@@ -41,6 +42,8 @@ import { OrderItemsModule } from './order_items/order_items.module';
     SavatModule,
     OrderModule,
     OrderItemsModule,
+    AdminModule,
+    UploutModule,
   ],
 })
 export class AppModule {}
