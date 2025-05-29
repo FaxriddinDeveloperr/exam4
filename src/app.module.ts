@@ -11,6 +11,8 @@ import { OrderModule } from './order/order.module';
 import { OrderItemsModule } from './order_items/order_items.module';
 import { AdminModule } from './admin/admin.module';
 import { UploutModule } from './uplout/uplout.module';
+import { MailModule } from './mail/mail.module';
+import { VerifyModule } from './verify/verify.module';
 
 @Module({
   imports: [
@@ -44,6 +46,8 @@ import { UploutModule } from './uplout/uplout.module';
     OrderItemsModule,
     AdminModule,
     UploutModule,
+    MailModule,
+    VerifyModule,
   ],
 })
 export class AppModule {}
