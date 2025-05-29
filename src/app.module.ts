@@ -13,7 +13,7 @@ import { ProductModule } from './product/product.module';
 import { Product } from './product/model/product.entity';
 import { AdminModule } from './admin/admin.module';
 import { UploutModule } from './uplout/uplout.module';
-import { ChatModule } from './chat/chat.module';
+import { JwtModule } from '@nestjs/jwt';
 import { Chat } from './chat/model/chat.entity';
 
 @Module({
@@ -21,6 +21,9 @@ import { Chat } from './chat/model/chat.entity';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    JwtModule.register({
+      global:true
     }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
@@ -51,7 +54,6 @@ import { Chat } from './chat/model/chat.entity';
     
     AdminModule,
     UploutModule,
-    ChatModule,
   ],
 })
 export class AppModule {}
