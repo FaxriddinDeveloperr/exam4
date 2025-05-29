@@ -61,4 +61,12 @@ export class AdminController {
   Add_seller(@Body() data: RegisterUserdto){
     return this.adminService.add_Seller(data)
   }
+
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  @Delete('delet_accaunt/:id')
+  delet_accaunt(@Param('id') id: string, @Req() req: Request) {
+    return this.adminService.delet_accaunt(+id, req);
+  }
+
 }

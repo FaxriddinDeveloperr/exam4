@@ -30,8 +30,8 @@ export class AdminService {
       registerUserdto.password = hash;
       const admin = {
         ...registerUserdto,
-        role: Role.ADMIN
-      }
+        role: Role.ADMIN,
+      };
       const newUser = await this.Model.create({ ...admin });
       return { Message: 'registerd', data: newUser };
     } catch (error) {
@@ -45,7 +45,7 @@ export class AdminService {
       if (!data.length) {
         throw new NotFoundException('Not fount user');
       }
-      return {statusCode: 200, data };
+      return { statusCode: 200, data };
     } catch (error) {
       throw new InternalServerErrorException();
     }
@@ -57,8 +57,7 @@ export class AdminService {
       if (!data) {
         throw new NotFoundException('Not fount user');
       }
-      return {statuscone: 200, data };
-
+      return { statuscone: 200, data };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -84,7 +83,7 @@ export class AdminService {
     }
   }
 
-  async add_Seller(registerUserdto: RegisterUserdto){
+  async add_Seller(registerUserdto: RegisterUserdto) {
     try {
       const data = await this.Model.findOne({
         where: { email: registerUserdto.email },
@@ -96,10 +95,41 @@ export class AdminService {
       registerUserdto.password = hash;
       const Seller = {
         ...registerUserdto,
-        role: Role.SELLER
-      }
+        role: Role.SELLER,
+      };
       const newdata = await this.Model.create({ ...Seller });
       return { Message: 'registerd', data: newdata };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async delet_accaunt(id: number, req: Request) {
+    try {
+      const users = req['user'];
+
+      const data = await this.Model.findByPk(id);
+      if (!data) {
+        throw new NotFoundException('Not fount user by id');
+      }
+      if (
+        users.role === Role.SUPER_ADMIN &&
+        users.id !== data.dataValues.id
+      ) {
+        await this.Model.destroy({ where: { id } });
+        return { Message: 'Deleted', data: {} };
+      } else if (
+        users.role === Role.ADMIN &&
+        data.dataValues.id !== users.id &&
+        data.dataValues.role !== Role.SUPER_ADMIN &&
+        data.dataValues.role !== Role.ADMIN
+      ) {
+        await this.Model.destroy({ where: { id } });
+        return { Message: 'Deleted', data: {} };
+      }
+      else{
+        throw new ForbiddenException("Sizda bu foydalanuvchini o'chirishga ruxsatingiz yo'q")
+      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

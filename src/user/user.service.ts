@@ -17,9 +17,8 @@ import { JwtService } from '@nestjs/jwt';
 import { ResetPasswordDto } from './dto/reset_password-user.dto';
 import { Request } from 'express';
 import { MailService } from 'src/mail/mail.service';
-import { totp, authenticator } from 'otplib';
+import { totp, authenticator} from 'otplib';
 
-authenticator.options = {window: 10}
 @Injectable()
 export class UserService {
   constructor(
@@ -30,6 +29,8 @@ export class UserService {
 
   async register(registerUserdto: RegisterUserdto) {
     try {
+      authenticator.options = {step: 1200}
+      
       const data = await this.Model.findOne({
         where: { email: registerUserdto.email },
       });
@@ -39,13 +40,13 @@ export class UserService {
       let hash = bcrypt.hashSync(registerUserdto.password, 10);
       registerUserdto.password = hash;
 
-      const newUser = await this.Model.create({ ...registerUserdto });
+      await this.Model.create({ ...registerUserdto });
 
-      const otp = totp.generate(String(registerUserdto.email))
+      const otp = totp.generate(String(process.env.OTP_SECRET))
 
       await this.main.sendMail(registerUserdto.email,`Sizning otp kokingiz: ${otp} `," Iltimos, ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning." )
 
-      return { Message: "Siz muvofiya qatliy ro'yhaddan o'dtingiz emailingizga borgan tasdiqlash kodi orqaliy shahsingizni tasdiqlayng!",};
+      return { Message: "Siz muvofiyaqatliy ro'yhaddan o'tdingiz emailingizga borgan tasdiqlash kodi orqaliy shahsingizni tasdiqlayng!",};
 
     } catch (error) {
       if (error instanceof HttpException) throw error;
@@ -157,30 +158,6 @@ export class UserService {
       throw new InternalServerErrorException(error.message);
     }
   }
-
-  // async delet_accaunt(id: number, req: Request) {
-  //   try {
-  //     const users = req['user'];
-
-  //     const data = await this.Model.findByPk(id);
-  //     if (!data) {
-  //       throw new NotFoundException('Not fount user by id');
-  //     }
-  //     if (
-  //       !(
-  //         data.dataValues.id == users.id ||
-  //         users.role == Role.ADMIN ||
-  //         users.role == Role.SUPER_ADMIN
-  //       )
-  //     ) {
-  //       throw new ForbiddenException();
-  //     }
-  //     await this.Model.destroy({ where: { id } });
-  //     return { Message: 'Deleted', data: {} };
-  //   } catch (error) {
-  //     throw new InternalServerErrorException(error.message);
-  //   }
-  // }
 
   async reset_password(data: ResetPasswordDto, req: Request) {
     try {

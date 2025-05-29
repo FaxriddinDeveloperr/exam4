@@ -57,15 +57,6 @@ export class UserController {
   }
 
 
-
-  // @UseGuards(AuthGuard)
-  // @Delete('delet_accaunt/:id')
-  // delet_accaunt(@Param('id') id: string, @Req() req: Request) {
-  //   return this.userService.delet_accaunt(+id, req);
-  // }
-
-
-
   @UseGuards(AuthGuard)
   @Post('reset_password')
   reset_password(@Body() data: ResetPasswordDto, @Req() req: Request) {
