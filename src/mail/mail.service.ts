@@ -9,8 +9,8 @@ export class MailService {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'usmonqulovabduhamid00@gmail.com',
-        pass: 'cnwydeadbexzniaw',
+        user: String(process.env.MEIL_FROM),
+        pass: String(process.env.MEIL_PASS),
       },
     });
   }
@@ -18,7 +18,8 @@ export class MailService {
   async sendMail(to: string, subject: string, text: string) {
     try {
       const message = await this.transporter.sendMail({
-        from: 'usmonqulovabduhamid00@gmail.com',
+
+        from: String(process.env.MEIL_FROM),
         to,
         subject,
         text,
