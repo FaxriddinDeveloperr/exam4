@@ -12,10 +12,10 @@ import { OrderItemsModule } from './order_items/order_items.module';
 import { ProductModule } from './product/product.module';
 import { Product } from './product/model/product.entity';
 import { AdminModule } from './admin/admin.module';
-import { UploutModule } from './uplout/uplout.module';
+import { UploutModule } from './uploads/uplout.module';
 import { MailModule } from './mail/mail.module';
 import { VerifyModule } from './verify/verify.module';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -52,7 +52,6 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
     OrderModule,
     OrderItemsModule,
     ProductModule,
-    
     AdminModule,
     UploutModule,
     MailModule,

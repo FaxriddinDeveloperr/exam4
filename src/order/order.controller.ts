@@ -1,6 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { CreateOrderDto, Status, StatusDto } from './dto/create-order.dto';
 
 @Controller('order')
 export class OrderController {
@@ -21,4 +29,8 @@ export class OrderController {
     return this.orderService.findOne(+id);
   }
 
+  @Patch('Status_Update/:id')
+  update(@Param('id') id: string, @Body() status: StatusDto) {
+    return this.orderService.Update_Status(+id, status);
+  }
 }
