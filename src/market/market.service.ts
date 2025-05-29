@@ -37,7 +37,7 @@ export class MarketService {
       return {
         statusCode: 200,
         message: 'All markets found',
-        data,
+        data: data,
       };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -69,7 +69,7 @@ export class MarketService {
         throw new NotFoundException(`Market with ID ${id} not found`);
       }
 
-      const [affectedCount, affectedRows] = await this.model.update(
+      const [affectedRows] = await this.model.update(
         updateMarketDto,
         {
           where: { id },
