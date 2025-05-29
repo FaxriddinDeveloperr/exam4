@@ -1,7 +1,7 @@
 import { Column, DataType, Model, Table } from "sequelize-typescript";
 
-@Table({modelName: "Savat"})
-export class Savat extends Model{
+@Table({modelName: "Order"})
+export class Orders extends Model{
     @Column({
         type: DataType.INTEGER,
         allowNull: false
@@ -9,14 +9,15 @@ export class Savat extends Model{
     userId: number
 
     @Column({
-        type: DataType.INTEGER,
-        allowNull: false
+        type: DataType.ENUM("pending","activ","finish"),
+        defaultValue: "pending"
     })
-    productId: number
+    status: string
 
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.STRING,
         allowNull: false
     })
-    count: number
+    addres: string
+
 }

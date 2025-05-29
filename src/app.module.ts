@@ -9,14 +9,22 @@ import { MarketModule } from './market/market.module';
 import { SavatModule } from './savat/savat.module';
 import { OrderModule } from './order/order.module';
 import { OrderItemsModule } from './order_items/order_items.module';
-import { RatingModule } from './rating/rating.module';
-import { SupportTicketModule } from './support_ticket/support_ticket.module';
+import { ProductModule } from './product/product.module';
+import { Product } from './product/model/product.entity';
+import { AdminModule } from './admin/admin.module';
+import { UploutModule } from './uploads/uplout.module';
+import { MailModule } from './mail/mail.module';
+import { VerifyModule } from './verify/verify.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    JwtModule.register({
+      global:true
     }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
@@ -35,7 +43,7 @@ import { SupportTicketModule } from './support_ticket/support_ticket.module';
         },
       },
 
-      models: [User, Market],
+      models: [User, Market,Product],
     }),
     UserModule,
     CategoryModule,
@@ -44,7 +52,11 @@ import { SupportTicketModule } from './support_ticket/support_ticket.module';
     SavatModule,
     OrderModule,
     OrderItemsModule,
-    SupportTicketModule,
+    ProductModule,
+    AdminModule,
+    UploutModule,
+    MailModule,
+    VerifyModule,
   ],
 })
 export class AppModule {}

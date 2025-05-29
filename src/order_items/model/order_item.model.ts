@@ -1,12 +1,12 @@
 import { Column, DataType, Model, Table } from "sequelize-typescript";
 
-@Table({modelName: "Savat"})
-export class Savat extends Model{
+@Table({modelName: "Order_item"})
+export class Order_Item extends Model{
     @Column({
         type: DataType.INTEGER,
         allowNull: false
     })
-    userId: number
+    orderId: number
 
     @Column({
         type: DataType.INTEGER,
@@ -19,4 +19,10 @@ export class Savat extends Model{
         allowNull: false
     })
     count: number
+
+    @Column({
+        type: DataType.DECIMAL,
+        allowNull: false
+    })
+    price_at_order: number
 }
