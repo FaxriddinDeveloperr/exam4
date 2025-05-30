@@ -20,6 +20,11 @@ import { Orders } from './order/model/order.entity';
 import { Savat } from './savat/model/savat.model';
 import { Order_Item } from './order_items/model/order_item.model';
 import { Category } from './category/model/category.model';
+import { RatingModule } from './rating/rating.module';
+import { SupportTicket } from './support_ticket/model/support_ticket.model';
+import { Rating } from './rating/model/rating.model';
+import { SupportTicketModule } from './support_ticket/support_ticket.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -46,10 +51,11 @@ import { Category } from './category/model/category.model';
           rejectUnauthorized: false,
         },
       },
-      models: [User, Market, Product, Orders, Savat, Order_Item, Category],
+      models: [User, Market, Product, Orders, Savat, Order_Item, SupportTicket, Rating,Category],
     }),
     UserModule,
     CategoryModule,
+    RatingModule,
     MarketModule,
     SavatModule,
     OrderModule,
@@ -59,6 +65,8 @@ import { Category } from './category/model/category.model';
     UploutModule,
     MailModule,
     VerifyModule,
+    SupportTicketModule,
+    NotificationModule
   ],
 })
 

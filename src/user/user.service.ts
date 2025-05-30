@@ -17,22 +17,21 @@ import { JwtService } from '@nestjs/jwt';
 import { ResetPasswordDto } from './dto/reset_password-user.dto';
 import { Request } from 'express';
 import { MailService } from 'src/mail/mail.service';
-import { totp, authenticator} from 'otplib';
-import sequelize from 'sequelize';
-import { Sequelize } from 'sequelize-typescript';
+import { totp, authenticator } from 'otplib';
+import { EmailPassword } from './dto/Email_reset_password';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User) private readonly Model: typeof User,
     private readonly JWT: JwtService,
-    private main: MailService,
+    private main: MailService
   ) {}
 
   async register(registerUserdto: RegisterUserdto) {
     try {
-      authenticator.options = {step: 1200}
-      
+      authenticator.options = { step: 1200 };
+
       const data = await this.Model.findOne({
         where: { email: registerUserdto.email },
       });
@@ -44,12 +43,21 @@ export class UserService {
 
       await this.Model.create({ ...registerUserdto });
 
-      const otp = totp.generate(String(process.env.OTP_SECRET))
+      const otp = totp.generate(String(process.env.OTP_SECRET));
 
-      await this.main.sendMail(registerUserdto.email,`Sizning otp kokingiz: ${otp} `," Iltimos, ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning." )
+      await this.main.sendMail(
+        registerUserdto.email,
+        `Bu Online Marked dan kelgan habar`,
+        `<div style="font-family: Arial, sans-serif; padding: 10px; border: 2px solid #ccc;">
+          <h4>Iltimos, ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning.</h4>
+          <h2> <b>Sizning otp kokingiz: </b> <h1>${otp}</h1></h2>
+        </div>`
+      );
 
-      return { Message: "Siz muvofiyaqatliy ro'yhaddan o'tdingiz emailingizga borgan tasdiqlash kodi orqaliy shahsingizni tasdiqlayng!",};
-
+      return {
+        Message:
+          "Siz muvofiyaqatliy ro'yhaddan o'tdingiz emailingizga borgan tasdiqlash kodi orqaliy shahsingizni tasdiqlayng!",
+      };
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException(error.message);
@@ -64,9 +72,11 @@ export class UserService {
       if (!data) {
         throw new NotFoundException('User Not fount');
       }
-      
-      if(!data.dataValues.IsActive){
-        throw new UnauthorizedException("Siz login qilishdan oldin akkauntingizni follashtiring")
+
+      if (!data.dataValues.IsActive) {
+        throw new UnauthorizedException(
+          'Siz login qilishdan oldin akkauntingizni follashtiring'
+        );
       }
       if (
         !bcrypt.compareSync(loginUserdto.password, data.dataValues.password)
@@ -120,7 +130,7 @@ export class UserService {
         return { data };
       } else {
         throw new ForbiddenException(
-          "Huquqingiz yetarliy emas, siz faqat o'z accauntingizni ko'rishingiz mumkin",
+          "Huquqingiz yetarliy emas, siz faqat o'z accauntingizni ko'rishingiz mumkin"
         );
       }
     } catch (error) {
@@ -144,7 +154,7 @@ export class UserService {
         )
       ) {
         throw new UnauthorizedException(
-          "Malumotlarni o'zgartirishga huquqingiz yetarliy emas",
+          "Malumotlarni o'zgartirishga huquqingiz yetarliy emas"
         );
       }
       return {
@@ -160,31 +170,55 @@ export class UserService {
       throw new InternalServerErrorException(error.message);
     }
   }
-
-  async reset_password(data: ResetPasswordDto, req: Request) {
+  async reset_password(data: ResetPasswordDto) {
     try {
-      let users = req['user'];
-
       const user = await this.Model.findOne({ where: { email: data.email } });
       if (!user) {
         throw new NotFoundException('User not fount by id');
       }
-      if (user.dataValues.id !== users.id) {
-        throw new UnauthorizedException();
-      }
+      let token = this.EmailToken({ email: data.email });
 
-      user.dataValues.password = bcrypt.hashSync(data.password, 10);
+      const resetLink = `http://127.0.0.1:5500/src/user/index.html?token=${token}`;
 
-      return {
-        message: 'Update Password',
-        date: await this.Model.update(user.dataValues, {
-          where: { id: users.id },
-          returning: true,
-        }),
-      };
+      await this.main.sendMail(
+        data.email,
+        `Email tasdiqlash`,
+        `<h3><b>Parolni tiklash uchun quyidagi havolani bosing:</b></h3>
+        <a href="${resetLink}">${resetLink}</a>`
+      );
+      return {statusCode: 201, message: "Parolingizni tiklash uchun emailingizga xabar yuborildi"}
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException(error.message);
+    }
+  }
+  async new_password(data: EmailPassword) {
+    try {
+      const token = this.JWT.verify(data.token, {
+        secret: String(process.env.EMAIL_SECRET),
+      });
+      try {
+        const userPass = await this.Model.findOne({
+          where: { email: token.email },
+        });
+        if (!userPass) {
+          throw new NotFoundException('User topilmadi');
+        }
+        let hashpass = bcrypt.hashSync(data.password, 10);
+        userPass.dataValues.password = hashpass;
+
+        await this.Model.update(userPass.dataValues, {
+          where: { email: userPass.dataValues.email },
+        });
+        return {statuscode: 201, message: "Parol muvaffaqiyatli o'zgartirildi!"}
+
+      } catch (error) {
+        if (error instanceof HttpException) throw error;
+        throw new InternalServerErrorException(error.message);
+      }
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new UnauthorizedException('Token vaxti tugadi');
     }
   }
 
@@ -214,6 +248,13 @@ export class UserService {
     return this.JWT.sign(peloud, {
       secret: process.env.REFRESH_SECRET,
       expiresIn: '7h',
+    });
+  }
+
+  EmailToken(peloud: { email: string }) {
+    return this.JWT.sign(peloud, {
+      secret: process.env.EMAIL_SECRET,
+      expiresIn: '2m',
     });
   }
 }
