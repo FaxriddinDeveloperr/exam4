@@ -16,6 +16,7 @@ import { UploutModule } from './uploads/uplout.module';
 import { MailModule } from './mail/mail.module';
 import { VerifyModule } from './verify/verify.module';
 import { JwtModule } from '@nestjs/jwt';
+import { RatingModule } from './rating/rating.module';
 
 @Module({
   imports: [
