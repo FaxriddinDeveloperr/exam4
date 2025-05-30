@@ -18,6 +18,8 @@ import { ResetPasswordDto } from './dto/reset_password-user.dto';
 import { Request } from 'express';
 import { MailService } from 'src/mail/mail.service';
 import { totp, authenticator} from 'otplib';
+import sequelize from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class UserService {

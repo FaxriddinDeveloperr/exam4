@@ -16,6 +16,10 @@ import { UploutModule } from './uploads/uplout.module';
 import { MailModule } from './mail/mail.module';
 import { VerifyModule } from './verify/verify.module';
 import { JwtModule } from '@nestjs/jwt';
+import { Orders } from './order/model/order.entity';
+import { Savat } from './savat/model/savat.model';
+import { Order_Item } from './order_items/model/order_item.model';
+import { Category } from './category/model/category.model';
 
 @Module({
   imports: [
@@ -24,7 +28,7 @@ import { JwtModule } from '@nestjs/jwt';
       envFilePath: '.env',
     }),
     JwtModule.register({
-      global:true
+      global: true,
     }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
@@ -42,8 +46,7 @@ import { JwtModule } from '@nestjs/jwt';
           rejectUnauthorized: false,
         },
       },
-
-      models: [User, Market,Product],
+      models: [User, Market, Product, Orders, Savat, Order_Item, Category],
     }),
     UserModule,
     CategoryModule,
@@ -58,4 +61,5 @@ import { JwtModule } from '@nestjs/jwt';
     VerifyModule,
   ],
 })
-export class AppModule {}
+
+export class  AppModule {}
