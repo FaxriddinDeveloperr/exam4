@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   Injectable,
   InternalServerErrorException,
@@ -23,9 +24,42 @@ export class OrderService {
   ) {}
 
   async create(data: CreateOrderDto) {
+    const T = await this.sequolizs.transaction();
     try {
-      const T = await this.sequolizs.transaction();
+      const SavatItem = await this.SavatModel.findAll({
+        where: { userId: data.userId },
+        transaction: T,
+      });
+  
+      if (!SavatItem || SavatItem.length === 0) {
+        throw new NotFoundException("Sizning savatingiz bo'sh");
+      }
+  
+      const Jami: {[key: number]:number} = {}
 
+      for (const i of SavatItem) {
+        const productId = i.dataValues.productId;
+        const count = i.dataValues.count;
+        if (!Jami[productId]) {
+          Jami[productId] = 0;
+        }
+        Jami[productId] += count;
+      }
+
+      for (const productIdStr in Jami) {
+        const productId = parseInt(productIdStr, 10);
+        const TotalCount = Jami[productId];
+        const product = await this.ProductModel.findByPk(productId);
+        if (!product) {
+          throw new NotFoundException(`Mahsulot topilmadi: ${productId}`);
+        }
+  
+        if (TotalCount > product.dataValues.count) {
+          throw new BadRequestException(
+            `Mahsulot yetarli emas: ${product.dataValues.name} — bor: ${product.dataValues.count}`,
+          );
+        }
+      }
       const order = await this.OrderModel.create(
         {
           userId: data.userId,
@@ -34,35 +68,46 @@ export class OrderService {
         },
         { transaction: T },
       );
-      const SavatItem = await this.SavatModel.findAll({
-        where: { userId: data.userId },
-        transaction: T,
-      });
-      for (const N of SavatItem) {
-        const product = await this.ProductModel.findByPk(N.productId);
 
+      for (const N of SavatItem) {
+        const productId = N.dataValues.productId;
+        const product = await this.ProductModel.findByPk(productId);
+  
+        const savatCount = N.dataValues.count;
+        const productCount = product!.dataValues.count;
+  
         await this.Order_ItemModel.create(
           {
             orderId: order.dataValues.id,
-            productId: N.productId,
-            count: N.count,
-            price_at_order: product?.dataValues.price,
+            productId,
+            count: savatCount,
+            price_at_order: product!.dataValues.price,
           },
           { transaction: T },
         );
+
+        await product!.update(
+          { count: productCount - savatCount },
+          { transaction: T },
+        );
       }
+  
       await this.SavatModel.destroy({
         where: { userId: data.userId },
         transaction: T,
       });
-
+  
       await T.commit();
-      return { message: 'Order creted', orderId: order.dataValues.id };
+      return { message: 'Order created', orderId: order.dataValues.id };
     } catch (error) {
+      await T.rollback();
       if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException('Buyurtma berishda xatolik berdi');
+      console.error('Error:', error);
+      throw new InternalServerErrorException('Buyurtma berishda xatolik yuz berdi');
     }
   }
+  
+  
 
   async findAll() {
     try {
