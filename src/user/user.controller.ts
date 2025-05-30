@@ -20,6 +20,7 @@ import { Roles } from 'src/Decorator/role.decorator';
 import { UpdateUserdto } from './dto/update-user.dto';
 import { RefreshGuard } from 'src/guard/Refresh_guard.service';
 import { ApiTags } from '@nestjs/swagger';
+import { EmailPassword } from './dto/Email_reset_password';
 
 @ApiTags("Auth")
 @Controller('Auth')
@@ -55,13 +56,15 @@ export class UserController {
   finfOne(@Param('id') id: string, @Req() req: Request) {
     return this.userService.findOne(+id, req);
   }
+  @Post("password")
+  new_password(@Body() data: EmailPassword){
+    return this.userService.new_password(data)
+  }
 
-
-  @UseGuards(AuthGuard)
   @Post('reset_password')
-  reset_password(@Body() data: ResetPasswordDto, @Req() req: Request) {
+  reset_password(@Body() data: ResetPasswordDto) {
     
-    return this.userService.reset_password(data, req);
+    return this.userService.reset_password(data);
   }
 
 

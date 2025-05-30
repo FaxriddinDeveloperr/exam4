@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <link rel="stylesheet" href="./index.css">
+  <meta charset="UTF-8" />
+  <title>Parolni tiklash</title>
+</head>
+<body>
+  <div class="container">
+    <h2>Yangi parolni kiriting</h2>
+    <input type="password" id="password" placeholder="Yangi parol" />
+    <button onclick="submitPassword()">Yuborish</button>
+    <div id="messageBox" class="message" style="display: none;"></div>
+  </div>
+
+  <script>
+    function getTokenFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("token");
+    }
+
+    async function submitPassword() {
+      const password = document.getElementById("password").value;
+      const token = getTokenFromURL();
+      const messageBox = document.getElementById("messageBox");
+
+      if (password.length < 8 || password.length > 32) {
+        messageBox.style.display = "block";
+        messageBox.className = "message error";
+        messageBox.textContent = "Parol uzunligi 8 dan kam va 32 dan katta bo'lmasligi kerak!";
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:3000/Auth/password", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ password, token })
+        });
+
+        const result = await response.json();
+        messageBox.style.display = "block";
+
+        if (response.ok) {
+          messageBox.className = "message success";
+          messageBox.textContent = result.message || "Parol muvaffaqiyatli o'zgartirildi!";
+        } else {
+          messageBox.className = "message error";
+          messageBox.textContent = result.message || "Xatolik yuz berdi!";
+        }
+
+      } catch (error) {
+        messageBox.style.display = "block";
+        messageBox.className = "message error";
+        messageBox.textContent = "Serverga ulanishda xatolik yuz berdi!";
+      }
+    }
+  </script>
+</body>
+</html>
