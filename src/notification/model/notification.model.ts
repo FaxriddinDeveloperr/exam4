@@ -1,9 +1,8 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
-import { Product } from "src/product/model/product.entity";
 import { User } from "src/user/model/user.model";
 
-@Table({modelName: "Savat"})
-export class Savat extends Model{
+@Table({modelName: "notifikation"})
+export class Notification extends Model{
     @ForeignKey(()=> User)
     @Column({
         type: DataType.INTEGER,
@@ -14,21 +13,22 @@ export class Savat extends Model{
     @BelongsTo(()=> User)
     user: User
 
-    @ForeignKey(()=> Product)
     @Column({
-        type: DataType.INTEGER,
-        allowNull: false
+        type: DataType.STRING,
+        defaultValue: "comment"
     })
-    productId: number
-
-    @BelongsTo(()=> Product)
-    product: Product
+    type: string
 
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.STRING,
         allowNull: false
     })
-    count: number
+    message: string
 
+    @Column({
+        type: DataType.BOOLEAN,
+        defaultValue: false
+    })
+    Is_read: boolean
 
 }

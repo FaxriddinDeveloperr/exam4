@@ -22,7 +22,8 @@ export class MailService {
         from: String(process.env.MEIL_FROM),
         to,
         subject,
-        text,
+        html: text
+       
       });
       return message;
     } catch (error) {
