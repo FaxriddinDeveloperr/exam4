@@ -17,7 +17,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ResetPasswordDto } from './dto/reset_password-user.dto';
 import { Request } from 'express';
 import { MailService } from 'src/mail/mail.service';
-import { totp, authenticator } from 'otplib';
+import { totp } from 'otplib';
 import { EmailPassword } from './dto/Email_reset_password';
 
 @Injectable()
@@ -30,7 +30,6 @@ export class UserService {
 
   async register(registerUserdto: RegisterUserdto) {
     try {
-      authenticator.options = { step: 1200 };
 
       const data = await this.Model.findOne({
         where: { email: registerUserdto.email },
@@ -43,7 +42,7 @@ export class UserService {
 
       await this.Model.create({ ...registerUserdto });
 
-      const otp = totp.generate(String(process.env.OTP_SECRET));
+      const otp = totp.generate(String(registerUserdto.email));
 
       await this.main.sendMail(
         registerUserdto.email,
