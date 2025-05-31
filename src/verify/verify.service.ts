@@ -8,10 +8,9 @@ import {
 import { InjectModel } from '@nestjs/sequelize';
 import { OtpDto, SentGmaildto } from 'src/user/dto/sentemail-user.dto';
 import { User } from 'src/user/model/user.model';
-import { totp, authenticator  } from 'otplib';
+import { totp  } from 'otplib';
 import { MailService } from 'src/mail/mail.service';
 
-authenticator.options = {window: 10}
 @Injectable()
 export class VerifyService {
   constructor(
@@ -26,20 +25,31 @@ export class VerifyService {
       if (!user) {
         throw new NotFoundException('Email topilmadi');
       }
+      const speakeasy = require('speakeasy');
       const Token = data.otp;
-      const IsOpt = totp.check(Token, String(user.dataValues.email))
+      const isOtpValid = speakeasy.totp.verify({
+        secret: String(user.dataValues.email),
+        encoding: 'ascii',
+        token: Token,
+        window: 1
+      });
       
-      if (!IsOpt) {
+      if (!isOtpValid) {
         throw new UnprocessableEntityException('Otp xato kiritilgan');
       }
+      console.log(isOtpValid);
+      
       user.dataValues.IsActive = true;
       
       await this.Model.update(user.dataValues, { where: { id: user.dataValues.id } });
 
       return { staatusCode: 201, message: 'Akkauntingiz aktivlashtirildi' };
+
     } catch (error) {
+      console.log(error);
+      
       if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -56,12 +66,12 @@ export class VerifyService {
         `Bu Online Marked dan kelgan habar`,
          `<div style="font-family: Arial, sans-serif; padding: 10px; border: 2px solid #ccc;">
           <h4>Iltimos, ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning.</h4>
-          <h2> <b>Sizning otp kokingiz: </b> <h1>${otp}</h1></h2>
+          <h2> <b>Sizning otp kodingiz: </b> <h1>${otp}</h1></h2>
         </div>`
       );
       return{message: `Quydagi emailga tasdiqlash kodi jo'natildi.  ${gmail.email}`}
     } catch (error) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException(error.message);
     }
   }
 }
