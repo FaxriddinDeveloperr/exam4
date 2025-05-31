@@ -18,8 +18,6 @@ async function bootstrap() {
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
 
-
-
   const config = new DocumentBuilder()
     .setTitle('Online Marketpleys')
     .setDescription('The cats API description')
