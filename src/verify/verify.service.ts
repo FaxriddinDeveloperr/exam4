@@ -37,7 +37,6 @@ export class VerifyService {
       if (!isOtpValid) {
         throw new UnprocessableEntityException('Otp xato kiritilgan');
       }
-      console.log(isOtpValid);
       
       user.dataValues.IsActive = true;
       
@@ -46,7 +45,6 @@ export class VerifyService {
       return { staatusCode: 201, message: 'Akkauntingiz aktivlashtirildi' };
 
     } catch (error) {
-      console.log(error);
       
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException(error.message);
