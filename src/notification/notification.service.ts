@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Notification } from './model/notification.model';
 import { User } from 'src/user/model/user.model';
@@ -29,10 +28,14 @@ export class NotificationService {
       const creted = await this.NotifikationModel.create({
         ...createNotificationDto,
       });
-      let email = data.dataValues.email
-      let {type, message} = createNotificationDto
+      let email = data.dataValues.email;
+      let { type, message } = createNotificationDto;
 
-      await this.mail.sendMail(email,type,`<div><h4 style="color:rgb(79, 146, 217)">${message}</h4></div>`)
+      await this.mail.sendMail(
+        email,
+        type,
+        `<div><h3 style="color:rgb(79, 146, 217)">${message}</h3></div>`
+      );
 
       return { message: 'creted', data: creted };
     } catch (error) {
@@ -41,19 +44,43 @@ export class NotificationService {
     }
   }
 
-  findAll() {
-    return `This action returns all notification`;
+  async findAll() {
+    try {
+      const data = await this.NotifikationModel.findAll();
+      if (!data.length) {
+        throw new NotFoundException();
+      }
+      return { statusCode: 200, data };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} notification`;
+  async findOne(id: number) {
+    try {
+      const data = await this.NotifikationModel.findByPk(id);
+      if (!data) {
+        throw new NotFoundException();
+      }
+      return {statusCode: 200, data}
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
-  update(id: number, updateNotificationDto: UpdateNotificationDto) {
-    return `This action updates a #${id} notification`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} notification`;
+  async remove(id: number) {
+    try {
+      const data = await this.NotifikationModel.findByPk(id);
+      if (!data) {
+        throw new NotFoundException();
+      }
+      await this.NotifikationModel.destroy({ where: { id: id } });
+      return { statusCode: 200, message: 'Deleted' };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException(error.message);
+    }
   }
 }

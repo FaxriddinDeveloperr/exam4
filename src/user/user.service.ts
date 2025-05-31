@@ -178,13 +178,13 @@ export class UserService {
       }
       let token = this.EmailToken({ email: data.email });
 
-      const resetLink = `http://127.0.0.1:5500/src/user/index.html?token=${token}`;
+      const resetLink = `https://usmonqulov-abduhamid-5018844.github.io/reset_password/?token=${token}`;
 
       await this.main.sendMail(
         data.email,
         `Email tasdiqlash`,
-        `<h3><b>Parolni tiklash uchun quyidagi havolani bosing:</b></h3>
-        <a href="${resetLink}">${resetLink}</a>`
+        `<h2><b>Parolni tiklash uchun quyidagi havolani bosing:</b></h2>
+        <a href="${resetLink}">Reset Password</a>`
       );
       return {statusCode: 201, message: "Parolingizni tiklash uchun emailingizga xabar yuborildi"}
     } catch (error) {
@@ -192,6 +192,7 @@ export class UserService {
       throw new InternalServerErrorException(error.message);
     }
   }
+  
   async new_password(data: EmailPassword) {
     try {
       const token = this.JWT.verify(data.token, {

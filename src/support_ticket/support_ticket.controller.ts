@@ -22,10 +22,6 @@ export class SupportTicketController {
     return this.supportTicketService.getTicketById(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSupportTicketDto: UpdateSupportTicketDto) {
-    return this.supportTicketService.update(+id, updateSupportTicketDto);
-  }
 
   @Delete(':id')
   remove(@Param('id') id: string) {

@@ -17,6 +17,7 @@ import { Request } from 'express';
 import { AuthGuard } from 'src/guard/guard.service';
 import { Roles } from 'src/Decorator/role.decorator';
 import { RoleGuard } from 'src/guard/role.guard';
+import { ResetPasswordDto } from 'src/user/dto/reset_password-user.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -64,9 +65,14 @@ export class AdminController {
 
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.SUPER_ADMIN, Role.ADMIN)
-  @Delete('delet_accaunt/:id')
+  @Delete('delet_accaunt_user/:id')
   delet_accaunt(@Param('id') id: string, @Req() req: Request) {
     return this.adminService.delet_accaunt(+id, req);
   }
-
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  @Post('reset_password')
+  reset_password(@Body() data: ResetPasswordDto) {
+      
+  }
 }

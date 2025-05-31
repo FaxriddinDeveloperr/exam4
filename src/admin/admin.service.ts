@@ -1,6 +1,7 @@
 import {
   ConflictException,
   ForbiddenException,
+  HttpException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -13,10 +14,16 @@ import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 
 import { UpdateUserdto } from 'src/user/dto/update-user.dto';
+import { ResetPasswordDto } from 'src/user/dto/reset_password-user.dto';
+import { UserService } from 'src/user/user.service';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AdminService {
-  constructor(@InjectModel(User) private readonly Model: typeof User) {}
+  constructor(@InjectModel(User) private readonly Model: typeof User,
+  private readonly jwt: UserService,
+  private readonly mail: MailService
+) {}
 
   async create(registerUserdto: RegisterUserdto) {
     try {
@@ -103,6 +110,29 @@ export class AdminService {
       throw new InternalServerErrorException(error.message);
     }
   }
+
+   async reset_password(data: ResetPasswordDto) {
+      try {
+        const user = await this.Model.findOne({ where: { email: data.email } });
+        if (!user) {
+          throw new NotFoundException('User not fount by id');
+        }
+        let token = this.jwt.EmailToken({ email: data.email });
+  
+        const resetLink = `https://usmonqulov-abduhamid-5018844.github.io/reset_password/?token=${token}`;
+  
+        await this.mail.sendMail(
+          data.email,
+          `Email tasdiqlash`,
+          `<h2><b>Parolni tiklash uchun quyidagi havolani bosing:</b></h2>
+          <a href="${resetLink}">Reset Password</a>`
+        );
+        return {statusCode: 201, message: "Parolingizni tiklash uchun emailingizga xabar yuborildi"}
+      } catch (error) {
+        if (error instanceof HttpException) throw error;
+        throw new InternalServerErrorException(error.message);
+      }
+    }
 
   async delet_accaunt(id: number, req: Request) {
     try {
