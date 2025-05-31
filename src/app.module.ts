@@ -25,6 +25,11 @@ import { SupportTicket } from './support_ticket/model/support_ticket.model';
 import { Rating } from './rating/model/rating.model';
 import { SupportTicketModule } from './support_ticket/support_ticket.module';
 import { NotificationModule } from './notification/notification.module';
+import { ChatModule } from './chat/chat.module';
+import { Comment } from './comment/model/comment.model';
+import { CommentModule } from './comment/comment.module';
+import { Chat } from './chat/model/chat.entity';
+import { Notification } from './notification/model/notification.model';
 
 @Module({
   imports: [
@@ -51,7 +56,20 @@ import { NotificationModule } from './notification/notification.module';
           rejectUnauthorized: false,
         },
       },
-      models: [User, Market, Product, Orders, Savat, Order_Item, SupportTicket, Rating,Category],
+      models: [
+        User,
+        Market,
+        Product,
+        Orders,
+        Savat,
+        Order_Item,
+        SupportTicket,
+        Rating,
+        Category,
+        Chat,
+        Comment,
+        Notification
+      ],
     }),
     UserModule,
     CategoryModule,
@@ -66,8 +84,9 @@ import { NotificationModule } from './notification/notification.module';
     MailModule,
     VerifyModule,
     SupportTicketModule,
-    NotificationModule
+    NotificationModule,
+    ChatModule,
+    CommentModule,
   ],
 })
-
-export class  AppModule {}
+export class AppModule {}

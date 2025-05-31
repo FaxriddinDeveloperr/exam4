@@ -8,8 +8,11 @@ import {
   ForeignKey,
 } from 'sequelize-typescript';
 import { Category } from 'src/category/model/category.model';
+import { Chat } from 'src/chat/model/chat.entity';
+import { Comment } from 'src/comment/model/comment.model';
 import { Market } from 'src/market/model/market.model';
 import { Order_Item } from 'src/order_items/model/order_item.model';
+import { Rating } from 'src/rating/model/rating.model';
 import { Savat } from 'src/savat/model/savat.model';
 import { User } from 'src/user/model/user.model';
 
@@ -80,4 +83,13 @@ export class Product extends Model {
 
   @HasMany(() => Savat)
   savatItems: Savat[];
+
+  @HasMany(()=> Comment)
+  comment: Comment[]
+
+  @HasMany(()=> Chat)
+  chat: Chat[]
+
+  @HasMany(()=> Rating)
+  reyting: Rating[]
 }

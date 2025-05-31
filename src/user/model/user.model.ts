@@ -1,8 +1,13 @@
 import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
+import { Chat } from 'src/chat/model/chat.entity';
+import { Comment } from 'src/comment/model/comment.model';
 import { Market } from 'src/market/model/market.model';
+import { Notification } from 'src/notification/model/notification.model';
 import { Orders } from 'src/order/model/order.entity';
 import { Product } from 'src/product/model/product.entity';
+import { Rating } from 'src/rating/model/rating.model';
 import { Savat } from 'src/savat/model/savat.model';
+import { SupportTicket } from 'src/support_ticket/model/support_ticket.model';
 
 @Table({ tableName: 'users' })
 export class User extends Model {
@@ -54,20 +59,20 @@ export class User extends Model {
   @HasMany(() => Orders)
   orders: Orders[];
 
-  // @HasMany(() => Chat, { foreignKey: 'sender_id' })
-  // sentMessages: Chat[];
+  @HasMany(() => Chat, { foreignKey: 'sender_id' })
+  sentMessages: Chat[];
 
-  // @HasMany(() => Chat, { foreignKey: 'receiver_id' })
-  // receivedMessages: Chat[];
+  @HasMany(() => Chat, { foreignKey: 'receiver_id' })
+  receivedMessages: Chat[];
 
-  // @HasMany(() => SupportTicket)
-  // supportTickets: SupportTicket[];
+  @HasMany(() => SupportTicket)
+  supportTickets: SupportTicket[];
 
-  // @HasMany(() => Notification)
-  // notifications: Notification[];
+  @HasMany(() => Notification)
+  notifications: Notification[];
 
-  // @HasMany(() => Comment)
-  // comments: Comment[];
+  @HasMany(() => Comment)
+  comments: Comment[];
 
   // @HasMany(() => Transaction)
   // transactions: Transaction[];
@@ -75,6 +80,9 @@ export class User extends Model {
   @HasMany(() => Savat)
   savatItems: Savat[];
 
-  @HasMany(()=> Market, "seller_id")
+  @HasMany(()=> Market, {foreignKey: "seller_id"})
   market: Market[]
+
+  @HasMany(()=>Rating)
+  rating: Rating[]
 }

@@ -17,7 +17,7 @@ export class Market extends Model {
   })
   seller_id: number;
 
-  @BelongsTo(()=> User)
+  @BelongsTo(()=> User, {foreignKey: "seller_id"})
   seller: User
 
   @Column({
