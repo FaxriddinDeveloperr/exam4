@@ -6,10 +6,13 @@ import {
   BelongsTo,
   Model
 } from 'sequelize-typescript';
+import { Product } from 'src/product/model/product.entity';
 import { User } from 'src/user/model/user.model';
 
 @Table({ tableName: 'rating' })
 export class Rating extends Model {
+
+  @ForeignKey(()=> Product)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
@@ -23,12 +26,16 @@ export class Rating extends Model {
   })
   sellerId: number;
 
-  @BelongsTo(() => User)
-  seller: User;
-
+  
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
   ball: number;
+
+  @BelongsTo(() => User, {foreignKey: "sellerId"})
+  seller: User;
+
+  @BelongsTo(()=> Product)
+  product: Product
 }
