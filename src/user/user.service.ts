@@ -193,13 +193,11 @@ export class UserService {
   }
   
   async new_password(data: EmailPassword) {
-    console.log(data);
     
     try {
       const token = this.JWT.verify(data.token, {
         secret: String(process.env.EMAIL_SECRET),
       });
-      console.log(token);
       
       try {
         const userPass = await this.Model.findOne({
