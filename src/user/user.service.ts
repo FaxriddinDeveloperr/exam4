@@ -183,7 +183,7 @@ export class UserService {
         data.email,
         `Email tasdiqlash`,
         `<h2><b>Parolni tiklash uchun quyidagi havolani bosing:</b></h2>
-        <a href="${resetLink}">Reset Password</a>`
+        <h3><a href="${resetLink}">Reset Password</a></h3>`
       );
       return {statusCode: 201, message: "Parolingizni tiklash uchun emailingizga xabar yuborildi"}
     } catch (error) {
@@ -193,10 +193,14 @@ export class UserService {
   }
   
   async new_password(data: EmailPassword) {
+    console.log(data);
+    
     try {
       const token = this.JWT.verify(data.token, {
         secret: String(process.env.EMAIL_SECRET),
       });
+      console.log(token);
+      
       try {
         const userPass = await this.Model.findOne({
           where: { email: token.email },
