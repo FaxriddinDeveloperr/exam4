@@ -54,23 +54,6 @@ export class SupportTicketService {
     }
   }
 
-  async update(id: number, updateSupportTicketDto: UpdateSupportTicketDto) {
-    try {
-      const data = await this.model.findByPk(id)
-      if (!data) {
-        throw new NotFoundException(`Ticket by this id:${id} not found`)
-      }
-      const updatedTicket = await this.model.update(updateSupportTicketDto, { where: { id }, returning: true })
-      return {
-        statusCode: 200,
-        message: 'success',
-        data: updatedTicket
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message)
-    }
-  }
-
   async remove(id: number) {
     try {
       const data = await this.model.findByPk(id)

@@ -12,15 +12,22 @@ import { Order_Item } from 'src/order_items/model/order_item.model';
 import { Product } from 'src/product/model/product.entity';
 import { Savat } from 'src/savat/model/savat.model';
 import { Sequelize } from 'sequelize-typescript';
+import { User } from 'src/user/model/user.model';
+import { MailService } from 'src/mail/mail.service';
+import { Market } from 'src/market/model/market.model';
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectModel(Orders) private readonly OrderModel: typeof Orders,
-    @InjectModel(Order_Item) private readonly Order_ItemModel: typeof Order_Item,
+    @InjectModel(Order_Item)
+    private readonly Order_ItemModel: typeof Order_Item,
     @InjectModel(Product) private readonly ProductModel: typeof Product,
     @InjectModel(Savat) private readonly SavatModel: typeof Savat,
+    @InjectModel(User) private readonly UserModel: typeof User,
+    @InjectModel(Market) private readonly MarkedModel: typeof Market,
     private readonly sequolizs: Sequelize,
+    private readonly mail: MailService
   ) {}
 
   async create(data: CreateOrderDto) {
@@ -30,12 +37,12 @@ export class OrderService {
         where: { userId: data.userId },
         transaction: T,
       });
-  
+
       if (!SavatItem || SavatItem.length === 0) {
         throw new NotFoundException("Sizning savatingiz bo'sh");
       }
-  
-      const Jami: {[key: number]:number} = {}
+
+      const Jami: { [key: number]: number } = {};
 
       for (const i of SavatItem) {
         const productId = i.dataValues.productId;
@@ -53,10 +60,10 @@ export class OrderService {
         if (!product) {
           throw new NotFoundException(`Mahsulot topilmadi: ${productId}`);
         }
-  
+
         if (TotalCount > product.dataValues.count) {
           throw new BadRequestException(
-            `Mahsulot yetarli emas: ${product.dataValues.name} — bor: ${product.dataValues.count}`,
+            `Mahsulot yetarli emas: ${product.dataValues.name} — bor: ${product.dataValues.count}`
           );
         }
       }
@@ -66,16 +73,17 @@ export class OrderService {
           addres: data.addres,
           status: Status.PENDING,
         },
-        { transaction: T },
+        { transaction: T }
       );
-
+      let marked_id = 0;
       for (const N of SavatItem) {
         const productId = N.dataValues.productId;
         const product = await this.ProductModel.findByPk(productId);
-  
+
         const savatCount = N.dataValues.count;
         const productCount = product!.dataValues.count;
-  
+
+        marked_id = product?.dataValues.market_id;
         await this.Order_ItemModel.create(
           {
             orderId: order.dataValues.id,
@@ -83,31 +91,58 @@ export class OrderService {
             count: savatCount,
             price_at_order: product!.dataValues.price,
           },
-          { transaction: T },
+          { transaction: T }
         );
 
         await product!.update(
           { count: productCount - savatCount },
-          { transaction: T },
+          { transaction: T }
         );
       }
-  
+
       await this.SavatModel.destroy({
         where: { userId: data.userId },
         transaction: T,
       });
-  
+
       await T.commit();
+
+      const user = await this.UserModel.findByPk(data.userId);
+      console.log(user?.dataValues);
+
+      this.mail.sendMail(
+        user?.dataValues.email,
+        `Hurmatliy ${user?.dataValues.name}`,
+        `<h2> Sizning buyurtmangiz muvaffaqiyatli qabul qilindi </h2>`
+      );
+
+      const SellerEmail = await this.MarkedModel.findByPk(marked_id, {
+        include: [
+          {
+            model: this.UserModel,
+            as: 'seller_Id',
+            attributes: ['email', 'name'],
+          },
+        ],
+      });
+      if (SellerEmail) {
+        this.mail.sendMail(
+          SellerEmail.dataValues.email,
+          `Hurmatli ${SellerEmail.dataValues.name},`,
+          `<h2> Sizning do'koningiz uchun yangi buyurtma qabul qilindi.</h2>`
+        );
+      }
+
       return { message: 'Order created', orderId: order.dataValues.id };
     } catch (error) {
       await T.rollback();
       if (error instanceof HttpException) throw error;
       console.error('Error:', error);
-      throw new InternalServerErrorException('Buyurtma berishda xatolik yuz berdi');
+      throw new InternalServerErrorException(
+        'Buyurtma berishda xatolik yuz berdi'
+      );
     }
   }
-  
-  
 
   async findAll() {
     try {
@@ -140,13 +175,14 @@ export class OrderService {
       if (!data) {
         throw new NotFoundException('Not fount order by id');
       }
+
       data.dataValues.status = status;
+      await this.OrderModel.update(data.dataValues, {
+        where: { id: data.dataValues.id },
+        returning: true,
+      });
       return {
         message: 'status Update',
-        data: await this.OrderModel.update(data.dataValues, {
-          where: { id: data.dataValues.id },
-          returning: true,
-        }),
       };
     } catch (error) {
       if (error instanceof HttpException) throw error;
