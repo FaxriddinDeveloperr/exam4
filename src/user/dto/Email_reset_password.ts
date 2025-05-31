@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class EmailPassword {
   @ApiProperty({
     example:
       "Bu routga hechnarsa jo'natmayn bu roout passwort almashtirish uchun  avtomatik ishlaydi",
   })
+  @IsOptional()
   message: string;
 
   @IsString()
