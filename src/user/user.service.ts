@@ -1,8 +1,7 @@
 import {
-  BadRequestException,
   ConflictException,
   ForbiddenException,
-  HttpStatus,
+  HttpException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -15,19 +14,23 @@ import { LoginUserdto } from './dto/login-user.dto';
 import { UpdateUserdto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { tracingChannel } from 'diagnostics_channel';
 import { ResetPasswordDto } from './dto/reset_password-user.dto';
 import { Request } from 'express';
+import { MailService } from 'src/mail/mail.service';
+import { totp, authenticator} from 'otplib';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User) private readonly Model: typeof User,
     private readonly JWT: JwtService,
+    private main: MailService,
   ) {}
 
   async register(registerUserdto: RegisterUserdto) {
     try {
+      authenticator.options = {step: 1200}
+      
       const data = await this.Model.findOne({
         where: { email: registerUserdto.email },
       });
@@ -37,9 +40,16 @@ export class UserService {
       let hash = bcrypt.hashSync(registerUserdto.password, 10);
       registerUserdto.password = hash;
 
-      const newUser = await this.Model.create({ ...registerUserdto });
-      return { Message: 'registerd', data: newUser };
+      await this.Model.create({ ...registerUserdto });
+
+      const otp = totp.generate(String(process.env.OTP_SECRET))
+
+      await this.main.sendMail(registerUserdto.email,`Sizning otp kokingiz: ${otp} `," Iltimos, ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning." )
+
+      return { Message: "Siz muvofiyaqatliy ro'yhaddan o'tdingiz emailingizga borgan tasdiqlash kodi orqaliy shahsingizni tasdiqlayng!",};
+
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException(error.message);
     }
   }
@@ -51,6 +61,10 @@ export class UserService {
       });
       if (!data) {
         throw new NotFoundException('User Not fount');
+      }
+      
+      if(!data.dataValues.IsActive){
+        throw new UnauthorizedException("Siz login qilishdan oldin akkauntingizni follashtiring")
       }
       if (
         !bcrypt.compareSync(loginUserdto.password, data.dataValues.password)
@@ -67,11 +81,9 @@ export class UserService {
         id: data.dataValues.id,
         role: data.dataValues.role,
       });
-
       return { accsestoken, refreshtoken };
     } catch (error) {
-      console.log(error);
-
+      if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException(error.message);
     }
   }
@@ -84,7 +96,8 @@ export class UserService {
       }
       return { data };
     } catch (error) {
-      throw new InternalServerErrorException("aaaaaaaaaaaaa");
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException();
     }
   }
 
@@ -98,7 +111,7 @@ export class UserService {
       }
 
       if (
-        users == data.dataValues.id ||
+        users.id == data.dataValues.id ||
         users.role == Role.ADMIN ||
         users.role == Role.SUPER_ADMIN
       ) {
@@ -141,83 +154,50 @@ export class UserService {
         }),
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException(error.message);
     }
   }
 
-  async delet_accaunt(id: number, req: Request) {
-    try {
-      const users = req['user'];
-
-      const data = await this.Model.findByPk(id);
-      if (!data) {
-        throw new NotFoundException('Not fount user by id');
-      }
-      if (
-        !(
-          data.dataValues.id == users.id ||
-          users.role == Role.ADMIN ||
-          users.role == Role.SUPER_ADMIN
-        )
-      ) {
-        throw new ForbiddenException();
-      }
-      await this.Model.destroy({ where: { id } });
-      return { Message: 'Deleted', data: {} };
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
   async reset_password(data: ResetPasswordDto, req: Request) {
     try {
       let users = req['user'];
-      
+
       const user = await this.Model.findOne({ where: { email: data.email } });
       if (!user) {
         throw new NotFoundException('User not fount by id');
       }
       if (user.dataValues.id !== users.id) {
-        
         throw new UnauthorizedException();
       }
 
       user.dataValues.password = bcrypt.hashSync(data.password, 10);
-      
-      return { message: 'Update Password',date: await this.Model.update(user.dataValues, {
-        where: { id: users.id },
-        returning: true,
-      }) };
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-  async refreshToken(req:Request){
-    try {
-      let users = req["user"]
-      const data = await this.Model.findByPk(users.id)
-      if(!data){
-        throw new UnauthorizedException("Not fount by id")
-      }
 
-      const accsestoken = this.AccesToken({id:data.id, role: data.role})
-      return {accsestoken}
+      return {
+        message: 'Update Password',
+        date: await this.Model.update(user.dataValues, {
+          where: { id: users.id },
+          returning: true,
+        }),
+      };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException(error.message);
     }
   }
 
-  async Add_admin(id: number){
+  async refreshToken(req: Request) {
     try {
-      const user = await this.Model.findByPk(id)
-      if(!user){
-        throw new NotFoundException("Not fount user by id")
+      let users = req['user'];
+      const data = await this.Model.findByPk(users.id);
+      if (!data) {
+        throw new UnauthorizedException('Not fount by id');
       }
 
-      user.dataValues.role = Role.ADMIN
-      
-     
-      return {Message: "Add admin", data: await this.Model.update(user.dataValues,{where: {id},returning:true})}
+      const accsestoken = this.AccesToken({ id: data.id, role: data.role });
+      return { accsestoken };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException(error.message);
     }
   }

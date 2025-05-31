@@ -11,12 +11,21 @@ import { OrderModule } from './order/order.module';
 import { OrderItemsModule } from './order_items/order_items.module';
 import { ProductModule } from './product/product.module';
 import { Product } from './product/model/product.entity';
+import { AdminModule } from './admin/admin.module';
+import { UploutModule } from './uploads/uplout.module';
+import { MailModule } from './mail/mail.module';
+import { VerifyModule } from './verify/verify.module';
+import { JwtModule } from '@nestjs/jwt';
+import { RatingModule } from './rating/rating.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    JwtModule.register({
+      global:true
     }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
@@ -39,12 +48,16 @@ import { Product } from './product/model/product.entity';
     }),
     UserModule,
     CategoryModule,
+    RatingModule,
     MarketModule,
     SavatModule,
     OrderModule,
     OrderItemsModule,
     ProductModule,
-    
+    AdminModule,
+    UploutModule,
+    MailModule,
+    VerifyModule,
   ],
 })
 export class AppModule {}

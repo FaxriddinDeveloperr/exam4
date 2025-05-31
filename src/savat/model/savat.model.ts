@@ -7,4 +7,16 @@ export class Savat extends Model{
         allowNull: false
     })
     userId: number
+
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: false
+    })
+    productId: number
+
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: false
+    })
+    count: number
 }
