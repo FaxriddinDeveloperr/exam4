@@ -2,7 +2,7 @@ import { HttpException, Injectable, InternalServerErrorException, NotFoundExcept
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { InjectModel } from '@nestjs/sequelize';
-import { Chat } from './model/chat.model';
+import { Chat } from './model/chat.entity';
 
 @Injectable()
 export class ChatService {
