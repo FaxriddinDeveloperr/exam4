@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserdto, Role } from './dto/register-user.dto';
@@ -19,10 +20,10 @@ import { RoleGuard } from 'src/guard/role.guard';
 import { Roles } from 'src/Decorator/role.decorator';
 import { UpdateUserdto } from './dto/update-user.dto';
 import { RefreshGuard } from 'src/guard/Refresh_guard.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { EmailPassword } from './dto/Email_reset_password';
 
-@ApiTags("Auth")
+@ApiTags('Auth')
 @Controller('Auth')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -38,17 +39,24 @@ export class UserController {
   }
 
   @UseGuards(RoleGuard)
-  @Roles(Role.ADMIN,Role.SUPER_ADMIN)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @UseGuards(AuthGuard)
-  @Get("all")
-  findAll(){
-    return this.userService.findAll()
+  @Get('all')
+  @ApiQuery({name: 'page', required: false, example: 1})
+  @ApiQuery({name: 'limit', required: false, example: 10})
+  @ApiQuery({ name: 'full_name', required: false, example: 'alex' })
+  @ApiQuery({ name: 'phone', required: false, example: '+998930451852'})
+  @ApiQuery({ name: 'region', required: false, example: 'Toshkent' })
+  @ApiQuery({name: "sortBy", required: false, example: "region"})
+  @ApiQuery({ name: 'order', required: true, enum: ['asc', 'desc'] })
+  findAll(@Query() query: Record<string, any>) {
+    return this.userService.findAll(query);
   }
 
   @UseGuards(RefreshGuard)
-  @Get("refreshToket")
-  refreshToken(@Req() req: Request){
-    return this.userService.refreshToken(req)
+  @Get('refreshToket')
+  refreshToken(@Req() req: Request) {
+    return this.userService.refreshToken(req);
   }
 
   @UseGuards(AuthGuard)
@@ -56,22 +64,23 @@ export class UserController {
   finfOne(@Param('id') id: string, @Req() req: Request) {
     return this.userService.findOne(+id, req);
   }
-  @Post("password")
-  new_password(@Body() data: EmailPassword){
-    return this.userService.new_password(data)
+  @Post('password')
+  new_password(@Body() data: EmailPassword) {
+    return this.userService.new_password(data);
   }
 
   @Post('reset_password')
   reset_password(@Body() data: ResetPasswordDto) {
-    
     return this.userService.reset_password(data);
   }
 
-
   @UseGuards(AuthGuard)
-  @Patch("Update/:id")
-  update(@Body() data: UpdateUserdto, @Param("id") id: string, @Req() req:Request){
-    return this.userService.update(data, +id, req)
+  @Patch('Update/:id')
+  update(
+    @Body() data: UpdateUserdto,
+    @Param('id') id: string,
+    @Req() req: Request
+  ) {
+    return this.userService.update(data, +id, req);
   }
-
 }

@@ -31,7 +31,7 @@ export class VerifyService {
         secret: String(user.dataValues.email),
         encoding: 'ascii',
         token: Token,
-        window: 1
+        window: 3
       });
       
       if (!isOtpValid) {
