@@ -1,5 +1,12 @@
-import {  BelongsTo, Column, DataType, ForeignKey, Table, Model } from "sequelize-typescript";
-import { User } from "src/user/model/user.model";
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  Table,
+  Model,
+} from 'sequelize-typescript';
+import { User } from 'src/user/model/user.model';
 
 @Table({ tableName: 'SupportTicket' })
 export class SupportTicket extends Model {
@@ -10,24 +17,24 @@ export class SupportTicket extends Model {
   })
   userId: number;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   user: User;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false
+    allowNull: false,
   })
-  subjectName: string
+  subjectName: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false
+    allowNull: false,
   })
-  message: string
+  message: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false
+    allowNull: false,
   })
-  status: string
+  status: string;
 }

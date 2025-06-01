@@ -1,10 +1,19 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Model, Table } from 'sequelize-typescript';
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  HasMany,
+  HasOne,
+  Model,
+  Table,
+} from 'sequelize-typescript';
 import { Order_Item } from 'src/order_items/model/order_item.model';
 import { User } from 'src/user/model/user.model';
 
 @Table({ modelName: 'Orders' })
 export class Orders extends Model {
-  @ForeignKey(()=> User)  
+  @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
@@ -23,13 +32,12 @@ export class Orders extends Model {
   })
   addres: string;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   user: User;
 
   @HasMany(() => Order_Item)
   items: Order_Item[];
 
-//   @HasOne(() => Transaction)
-//   transaction: Transaction;
-
+  //   @HasOne(() => Transaction)
+  //   transaction: Transaction;
 }
