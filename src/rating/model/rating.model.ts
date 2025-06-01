@@ -4,15 +4,14 @@ import {
   Table,
   ForeignKey,
   BelongsTo,
-  Model
+  Model,
 } from 'sequelize-typescript';
 import { Product } from 'src/product/model/product.entity';
 import { User } from 'src/user/model/user.model';
 
 @Table({ tableName: 'rating' })
 export class Rating extends Model {
-
-  @ForeignKey(()=> Product)
+  @ForeignKey(() => Product)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
@@ -26,16 +25,19 @@ export class Rating extends Model {
   })
   sellerId: number;
 
-  
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
   ball: number;
 
-  @BelongsTo(() => User, {foreignKey: "sellerId"})
+  @BelongsTo(() => User, {
+    foreignKey: 'sellerId',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   seller: User;
 
-  @BelongsTo(()=> Product)
-  product: Product
+  @BelongsTo(() => Product, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+  product: Product;
 }
