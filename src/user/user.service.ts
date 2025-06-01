@@ -19,6 +19,7 @@ import { Request } from 'express';
 import { MailService } from 'src/mail/mail.service';
 import { totp } from 'otplib';
 import { EmailPassword } from './dto/Email_reset_password';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class UserService {
@@ -30,7 +31,6 @@ export class UserService {
 
   async register(registerUserdto: RegisterUserdto) {
     try {
-
       const data = await this.Model.findOne({
         where: { email: registerUserdto.email },
       });
@@ -48,8 +48,8 @@ export class UserService {
         registerUserdto.email,
         `Bu Online Marked dan kelgan habar`,
         `<div style="font-family: Arial, sans-serif; padding: 10px; border: 2px solid #ccc;">
-          <h4>Iltimos, ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning.</h4>
-          <h2> <b>Sizning otp kokingiz: </b> <h1>${otp}</h1></h2>
+          <h4>Iltimos, Ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning.</h4>
+          <h2> <b>Sizning tasdiqlash kokingiz: </b> <h1>${otp}</h1></h2>
         </div>`
       );
 
@@ -99,18 +99,56 @@ export class UserService {
     }
   }
 
-  async findAll() {
+  async findAll(query: Record<string, any>) {
     try {
-      const data = await this.Model.findAll();
-      if (!data.length) {
-        throw new NotFoundException('Not fount user');
+      let {
+        page,
+        limit,
+        full_name,
+        phone,
+        region,
+        sortBy,
+        order,
+      } = query;
+  
+      page = parseInt(page) || 1;
+      limit = parseInt(limit) || 10;
+      const offset = (page - 1) * limit;
+      const sortColumn = sortBy || 'full_name';
+      const sortOrder = order === 'desc' ? 'DESC' : 'ASC';
+  
+      const where: any = {};
+  
+      if (full_name) {
+        where.full_name = { [Op.iLike]: `%${full_name}%` };
       }
-      return { data };
+  
+      if (phone) {
+        where.phone = { [Op.iLike]: `%${phone}%` };
+      }
+  
+      if (region) {
+        where.region = { [Op.iLike]: `%${region}%` };
+      }
+  
+      const { count: total, rows: data } = await this.Model.findAndCountAll({
+        where,
+        order: [[sortColumn, sortOrder]],
+        limit,
+        offset,
+      });
+  
+      return {
+        total,
+        page,
+        limit,
+        data,
+      };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException();
+      return { message: error.message || 'Xatolik yuz berdi' };
     }
   }
+  
 
   async findOne(id: number, req: Request) {
     try {
@@ -185,22 +223,25 @@ export class UserService {
         `<h2><b>Parolni tiklash uchun quyidagi havolani bosing:</b></h2>
         <h3><a href="${resetLink}">Reset Password</a></h3>`
       );
-      return {statusCode: 201, message: "Parolingizni tiklash uchun emailingizga xabar yuborildi"}
+      return {
+        statusCode: 201,
+        message: 'Parolingizni tiklash uchun emailingizga xabar yuborildi',
+      };
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException(error.message);
     }
   }
-  
+
   async new_password(data: EmailPassword) {
     console.log(data);
-    
+
     try {
       const token = this.JWT.verify(data.token, {
         secret: String(process.env.EMAIL_SECRET),
       });
       console.log(token);
-      
+
       try {
         const userPass = await this.Model.findOne({
           where: { email: token.email },
@@ -214,8 +255,10 @@ export class UserService {
         await this.Model.update(userPass.dataValues, {
           where: { email: userPass.dataValues.email },
         });
-        return {statuscode: 201, message: "Parol muvaffaqiyatli o'zgartirildi!"}
-
+        return {
+          statuscode: 201,
+          message: "Parol muvaffaqiyatli o'zgartirildi!",
+        };
       } catch (error) {
         if (error instanceof HttpException) throw error;
         throw new InternalServerErrorException(error.message);

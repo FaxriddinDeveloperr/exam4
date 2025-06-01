@@ -73,6 +73,6 @@ export class AdminController {
   @Roles(Role.SUPER_ADMIN, Role.ADMIN)
   @Post('reset_password')
   reset_password(@Body() data: ResetPasswordDto) {
-      
+      return this.adminService.reset_password(data)
   }
 }

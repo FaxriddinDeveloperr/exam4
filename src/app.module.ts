@@ -30,6 +30,9 @@ import { Comment } from './comment/model/comment.model';
 import { CommentModule } from './comment/comment.module';
 import { Chat } from './chat/model/chat.entity';
 import { Notification } from './notification/model/notification.model';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { UploadController } from './uploads/uplout.controller';
 
 @Module({
   imports: [
@@ -70,6 +73,7 @@ import { Notification } from './notification/model/notification.model';
         Comment,
         Notification
       ],
+
     }),
     UserModule,
     CategoryModule,
@@ -87,6 +91,12 @@ import { Notification } from './notification/model/notification.model';
     NotificationModule,
     ChatModule,
     CommentModule,
+
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, "..","/uploads"),
+      serveRoot: "/file"
+    }),
   ],
+  controllers:[UploadController],
 })
 export class AppModule {}

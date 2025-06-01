@@ -7,10 +7,10 @@ export class CreateProductDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ example: 'resm' })
+  @ApiProperty({ example: 'link' })
   @IsString()
   @IsNotEmpty()
-  img: string;
+  image: string;
 
   @ApiProperty({ example: 'eng zor mahsulot ' })
   @IsString()
