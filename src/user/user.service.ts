@@ -19,6 +19,7 @@ import { Request } from 'express';
 import { MailService } from 'src/mail/mail.service';
 import { totp } from 'otplib';
 import { EmailPassword } from './dto/Email_reset_password';
+import { catchError } from 'src/utils/chatchError';
 
 @Injectable()
 export class UserService {
@@ -30,7 +31,6 @@ export class UserService {
 
   async register(registerUserdto: RegisterUserdto) {
     try {
-
       const data = await this.Model.findOne({
         where: { email: registerUserdto.email },
       });
@@ -48,8 +48,8 @@ export class UserService {
         registerUserdto.email,
         `Bu Online Marked dan kelgan habar`,
         `<div style="font-family: Arial, sans-serif; padding: 10px; border: 2px solid #ccc;">
-          <h4>Iltimos, ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning.</h4>
-          <h2> <b>Sizning otp kokingiz: </b> <h1>${otp}</h1></h2>
+          <h4>Iltimos, Ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning.</h4>
+          <h2> <b>Sizning tasdiqlash kokingiz: </b> <h1>${otp}</h1></h2>
         </div>`
       );
 
@@ -58,8 +58,7 @@ export class UserService {
           "Siz muvofiyaqatliy ro'yhaddan o'tdingiz emailingizga borgan tasdiqlash kodi orqaliy shahsingizni tasdiqlayng!",
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -94,8 +93,7 @@ export class UserService {
       });
       return { accsestoken, refreshtoken };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -107,10 +105,10 @@ export class UserService {
       }
       return { data };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException();
+      return catchError(error);
     }
   }
+  
 
   async findOne(id: number, req: Request) {
     try {
@@ -133,7 +131,7 @@ export class UserService {
         );
       }
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -165,8 +163,7 @@ export class UserService {
         }),
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
   async reset_password(data: ResetPasswordDto) {
@@ -185,20 +182,33 @@ export class UserService {
         `<h2><b>Parolni tiklash uchun quyidagi havolani bosing:</b></h2>
         <h3><a href="${resetLink}">Reset Password</a></h3>`
       );
-      return {statusCode: 201, message: "Parolingizni tiklash uchun emailingizga xabar yuborildi"}
+      return {
+        statusCode: 201,
+        message: 'Parolingizni tiklash uchun emailingizga xabar yuborildi',
+      };
+      return {
+        statusCode: 201,
+        message: 'Parolingizni tiklash uchun emailingizga xabar yuborildi',
+      };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
-  
+
+
   async new_password(data: EmailPassword) {
     
+    console.log(data);
+
+
     try {
       const token = this.JWT.verify(data.token, {
         secret: String(process.env.EMAIL_SECRET),
       });
       
+      console.log(token);
+
+
       try {
         const userPass = await this.Model.findOne({
           where: { email: token.email },
@@ -212,15 +222,20 @@ export class UserService {
         await this.Model.update(userPass.dataValues, {
           where: { email: userPass.dataValues.email },
         });
-        return {statuscode: 201, message: "Parol muvaffaqiyatli o'zgartirildi!"}
-
+        return {
+          statuscode: 201,
+          message: "Parol muvaffaqiyatli o'zgartirildi!",
+        };
+        return {
+          statuscode: 201,
+          message: "Parol muvaffaqiyatli o'zgartirildi!",
+        };
       } catch (error) {
         if (error instanceof HttpException) throw error;
         throw new InternalServerErrorException(error.message);
       }
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new UnauthorizedException('Token vaxti tugadi');
+      return catchError(error);
     }
   }
 
@@ -235,8 +250,7 @@ export class UserService {
       const accsestoken = this.AccesToken({ id: data.id, role: data.role });
       return { accsestoken };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 

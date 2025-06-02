@@ -69,13 +69,13 @@ export class Product extends Model {
   })
   price: number;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   seller: User;
 
-  @BelongsTo(() => Market)
+  @BelongsTo(() => Market, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   market: Market;
 
-  @BelongsTo(() => Category)
+  @BelongsTo(() => Category, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   category: Category;
 
   @HasMany(() => Order_Item)
@@ -84,12 +84,12 @@ export class Product extends Model {
   @HasMany(() => Savat)
   savatItems: Savat[];
 
-  @HasMany(()=> Comment)
-  comment: Comment[]
+  @HasMany(() => Comment)
+  comment: Comment[];
 
-  @HasMany(()=> Chat)
-  chat: Chat[]
+  @HasMany(() => Chat)
+  chat: Chat[];
 
-  @HasMany(()=> Rating)
-  reyting: Rating[]
+  @HasMany(() => Rating)
+  reyting: Rating[];
 }

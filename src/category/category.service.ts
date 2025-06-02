@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  HttpException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -44,6 +45,7 @@ export class CategoryService {
         data: data,
       };
     } catch (error) {
+      if(error instanceof HttpException) throw error
       throw new InternalServerErrorException(error.message);
     }
   }

@@ -1,4 +1,12 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript';
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  HasMany,
+  Model,
+  Table,
+} from 'sequelize-typescript';
 import { Product } from 'src/product/model/product.entity';
 import { User } from 'src/user/model/user.model';
 
@@ -10,15 +18,19 @@ export class Market extends Model {
   })
   name: string;
 
-  @ForeignKey(()=> User)
+  @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
   seller_id: number;
 
-  @BelongsTo(()=> User, {foreignKey: "seller_id"})
-  seller: User
+  @BelongsTo(() => User, {
+    foreignKey: 'seller_id',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  seller: User;
 
   @Column({
     type: DataType.FLOAT,
@@ -44,6 +56,6 @@ export class Market extends Model {
   })
   follower_count: number;
 
-  @HasMany(()=> Product)
-  product: Product[]
+  @HasMany(() => Product)
+  product: Product[];
 }

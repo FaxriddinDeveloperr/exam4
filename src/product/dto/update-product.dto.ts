@@ -7,10 +7,10 @@ export class UpdateProductDto {
   @IsString()
   @IsOptional()
   name: string;
-  @ApiProperty({ example: 'resm' })
+  @ApiProperty({ example: 'link' })
   @IsString()
   @IsOptional()
-  img: string;
+  image: string;
 
   @ApiProperty({ example: 'eng zor mahsulot ' })
   @IsString()
@@ -21,16 +21,6 @@ export class UpdateProductDto {
   @IsNumber()
   @IsOptional()
   count: number;
-
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  @IsOptional()
-  market_id: number;
-
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  @IsOptional()
-  category_id: number;
 
   @ApiProperty({ example: 12 })
   @IsNumber()

@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Order_Item } from './model/order_item.model';
 import { Orders } from 'src/order/model/order.entity';
 import { Product } from 'src/product/model/product.entity';
+import { catchError } from 'rxjs';
 
 @Injectable()
 export class OrderItemsService {
@@ -27,8 +28,8 @@ export class OrderItemsService {
       }
       return { status: 200, data };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error)
+
     }
   }
 }
