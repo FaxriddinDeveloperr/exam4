@@ -18,6 +18,7 @@ import { AuthGuard } from 'src/guard/guard.service';
 import { Roles } from 'src/Decorator/role.decorator';
 import { RoleGuard } from 'src/guard/role.guard';
 import { ResetPasswordDto } from 'src/user/dto/reset_password-user.dto';
+import { LoginUserdto } from 'src/user/dto/login-user.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -27,7 +28,7 @@ export class AdminController {
   @Roles(Role.SUPER_ADMIN)
   @UseGuards(AuthGuard)
   @Post('add_admin')
-  create(@Body() registerUserdto: RegisterUserdto) {
+  add_admin(@Body() registerUserdto: RegisterUserdto) {
     return this.adminService.create(registerUserdto);
   }
 
@@ -74,5 +75,8 @@ export class AdminController {
   @Post('reset_password')
   reset_password(@Body() data: ResetPasswordDto) {
       return this.adminService.reset_password(data)
+  }
+  SiginIn(@Body() data: LoginUserdto){
+    return this.adminService.SiginIn(data)
   }
 }

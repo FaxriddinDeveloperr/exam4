@@ -17,6 +17,7 @@ import { UpdateUserdto } from 'src/user/dto/update-user.dto';
 import { ResetPasswordDto } from 'src/user/dto/reset_password-user.dto';
 import { UserService } from 'src/user/user.service';
 import { MailService } from 'src/mail/mail.service';
+import { LoginUserdto } from 'src/user/dto/login-user.dto';
 
 @Injectable()
 export class AdminService {
@@ -162,6 +163,12 @@ export class AdminService {
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
+    }
+  }
+  async SiginIn(data: LoginUserdto){
+    try {
+    } catch (error) {
+      
     }
   }
 }
