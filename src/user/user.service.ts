@@ -240,7 +240,6 @@ export class UserService {
       const token = this.JWT.verify(data.token, {
         secret: String(process.env.EMAIL_SECRET),
       });
-      console.log(token);
 
       try {
         const userPass = await this.Model.findOne({

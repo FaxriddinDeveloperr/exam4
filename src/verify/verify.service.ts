@@ -10,6 +10,7 @@ import { OtpDto, SentGmaildto } from 'src/user/dto/sentemail-user.dto';
 import { User } from 'src/user/model/user.model';
 import { totp  } from 'otplib';
 import { MailService } from 'src/mail/mail.service';
+import { Role } from 'src/user/dto/register-user.dto';
 
 @Injectable()
 export class VerifyService {
@@ -39,7 +40,6 @@ export class VerifyService {
       }
       
       user.dataValues.IsActive = true;
-      
       await this.Model.update(user.dataValues, { where: { id: user.dataValues.id } });
 
       return { staatusCode: 201, message: 'Akkauntingiz aktivlashtirildi' };
