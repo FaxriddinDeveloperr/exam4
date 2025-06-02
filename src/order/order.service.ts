@@ -15,6 +15,7 @@ import { Sequelize } from 'sequelize-typescript';
 import { User } from 'src/user/model/user.model';
 import { MailService } from 'src/mail/mail.service';
 import { Market } from 'src/market/model/market.model';
+import { catchError } from 'rxjs';
 
 @Injectable()
 export class OrderService {
@@ -108,7 +109,6 @@ export class OrderService {
       await T.commit();
 
       const user = await this.UserModel.findByPk(data.userId);
-      console.log(user?.dataValues);
 
       this.mail.sendMail(
         user?.dataValues.email,
@@ -136,11 +136,7 @@ export class OrderService {
       return { message: 'Order created', orderId: order.dataValues.id };
     } catch (error) {
       await T.rollback();
-      if (error instanceof HttpException) throw error;
-      console.error('Error:', error);
-      throw new InternalServerErrorException(
-        'Buyurtma berishda xatolik yuz berdi'
-      );
+      return catchError(error);
     }
   }
 
@@ -152,8 +148,7 @@ export class OrderService {
       }
       return { statusCode: 200, data: data };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException();
+      return catchError(error);
     }
   }
 
@@ -165,8 +160,7 @@ export class OrderService {
       }
       return { statusCode: 200, data: data };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException();
+      return catchError(error);
     }
   }
   async Update_Status(id: number, status: StatusDto) {
@@ -185,8 +179,7 @@ export class OrderService {
         message: 'status Update',
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException();
+      return catchError(error);
     }
   }
 }

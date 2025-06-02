@@ -7,6 +7,8 @@ import { CreateMarketDto } from './dto/create-market.dto';
 import { UpdateMarketDto } from './dto/update-market.dto';
 import { Market } from './model/market.model';
 import { InjectModel } from '@nestjs/sequelize';
+import { catchError } from 'src/utils/chatchError';
+import { error } from 'console';
 
 @Injectable()
 export class MarketService {
@@ -22,7 +24,7 @@ export class MarketService {
         data: market,
       };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -40,7 +42,7 @@ export class MarketService {
         data: data,
       };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -49,7 +51,7 @@ export class MarketService {
       const market = await this.model.findByPk(id);
 
       if (!market) {
-        throw new NotFoundException(`Market with ID ${id} not found`);
+        return catchError(error);
       }
 
       return {
@@ -58,7 +60,7 @@ export class MarketService {
         data: market,
       };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -69,13 +71,10 @@ export class MarketService {
         throw new NotFoundException(`Market with ID ${id} not found`);
       }
 
-      const [affectedRows] = await this.model.update(
-        updateMarketDto,
-        {
-          where: { id },
-          returning: true,
-        },
-      );
+      const [affectedRows] = await this.model.update(updateMarketDto, {
+        where: { id },
+        returning: true,
+      });
 
       return {
         statusCode: 200,
@@ -83,7 +82,7 @@ export class MarketService {
         data: affectedRows[0],
       };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -102,7 +101,7 @@ export class MarketService {
         data: {},
       };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 }

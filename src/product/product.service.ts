@@ -8,6 +8,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Product } from './model/product.entity';
+import { catchError } from 'src/utils/chatchError';
 
 @Injectable()
 export class ProductService {
@@ -23,8 +24,7 @@ export class ProductService {
         data: product,
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error)
     }
   }
 
@@ -40,8 +40,7 @@ export class ProductService {
         data: product,
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -57,8 +56,7 @@ export class ProductService {
         data: product,
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -66,7 +64,9 @@ export class ProductService {
     try {
       const product = await this.model.findByPk(id);
       if (!product) {
-        throw new NotFoundException(`Product with id ${id} not found for update`);
+        throw new NotFoundException(
+          `Product with id ${id} not found for update`
+        );
       }
 
       const [, [updatedProduct]] = await this.model.update(updateProductDto, {
@@ -80,8 +80,7 @@ export class ProductService {
         data: updatedProduct,
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -97,8 +96,7 @@ export class ProductService {
         data: { id },
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 }
