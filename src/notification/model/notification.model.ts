@@ -10,7 +10,10 @@ export class Notification extends Model{
     })
     userId: number
 
-    @BelongsTo(()=> User)
+    @BelongsTo(()=> User,{
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    })
     user: User
 
     @Column({

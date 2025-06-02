@@ -37,9 +37,15 @@ export class Comment extends Model {
   })
   star: number;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User,{
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   users: number;
 
-  @BelongsTo(() => Product)
+  @BelongsTo(() => Product,{
+    onDelete: "CASCADE",
+    onUpdate:"CASCADE",
+  })
   product: Product;
 }

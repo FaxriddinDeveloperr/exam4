@@ -8,7 +8,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Product } from './model/product.entity';
-import { catchError } from 'src/utils/chatchError';
+import { catchError } from 'rxjs';
 
 @Injectable()
 export class ProductService {
@@ -24,7 +24,7 @@ export class ProductService {
         data: product,
       };
     } catch (error) {
-      return catchError(error)
+      return catchError(error);
     }
   }
 

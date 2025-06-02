@@ -48,8 +48,8 @@ export class UserService {
         registerUserdto.email,
         `Bu Online Marked dan kelgan habar`,
         `<div style="font-family: Arial, sans-serif; padding: 10px; border: 2px solid #ccc;">
-          <h4>Iltimos, ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning.</h4>
-          <h2> <b>Sizning otp kokingiz: </b> <h1>${otp}</h1></h2>
+          <h4>Iltimos, Ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning.</h4>
+          <h2> <b>Sizning tasdiqlash kokingiz: </b> <h1>${otp}</h1></h2>
         </div>`
       );
 
@@ -108,6 +108,7 @@ export class UserService {
       return catchError(error);
     }
   }
+  
 
   async findOne(id: number, req: Request) {
     try {
@@ -185,19 +186,26 @@ export class UserService {
         statusCode: 201,
         message: 'Parolingizni tiklash uchun emailingizga xabar yuborildi',
       };
+      return {
+        statusCode: 201,
+        message: 'Parolingizni tiklash uchun emailingizga xabar yuborildi',
+      };
     } catch (error) {
       return catchError(error);
     }
   }
 
+
   async new_password(data: EmailPassword) {
     console.log(data);
+
 
     try {
       const token = this.JWT.verify(data.token, {
         secret: String(process.env.EMAIL_SECRET),
       });
       console.log(token);
+
 
       try {
         const userPass = await this.Model.findOne({
@@ -212,6 +220,10 @@ export class UserService {
         await this.Model.update(userPass.dataValues, {
           where: { email: userPass.dataValues.email },
         });
+        return {
+          statuscode: 201,
+          message: "Parol muvaffaqiyatli o'zgartirildi!",
+        };
         return {
           statuscode: 201,
           message: "Parol muvaffaqiyatli o'zgartirildi!",
