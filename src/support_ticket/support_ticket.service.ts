@@ -9,6 +9,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { SupportTicket } from './model/support_ticket.model';
 import { NotFoundError } from 'rxjs';
 import { catchError } from 'src/utils/chatchError';
+import { User } from 'src/user/model/user.model';
 
 @Injectable()
 export class SupportTicketService {
@@ -33,7 +34,7 @@ export class SupportTicketService {
 
   async getAllTickets() {
     try {
-      const data = await this.model.findAll();
+      const data = await this.model.findAll({ include: { model: User } });
       if (!data.length) {
         throw new NotFoundException('Tickets not found');
       }
@@ -49,7 +50,7 @@ export class SupportTicketService {
 
   async getTicketById(id: number) {
     try {
-      const data = await this.model.findByPk(id);
+      const data = await this.model.findByPk(id, { include: { model: User } });
       if (!data) {
         throw new NotFoundException(`Ticket by this id:${id} not found`);
       }

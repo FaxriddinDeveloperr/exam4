@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
+import { catchError } from 'src/utils/chatchError';
 
 @Injectable()
 export class MailService {
@@ -28,7 +29,7 @@ export class MailService {
       return message;
     } catch (error) {
       console.error('Email yuborishda xatolik:', error);
-      throw error;
+      return catchError(error);
     }
   }
 }

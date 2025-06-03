@@ -16,6 +16,7 @@ import { User } from 'src/user/model/user.model';
 import { MailService } from 'src/mail/mail.service';
 import { Market } from 'src/market/model/market.model';
 import { catchError } from 'rxjs';
+import { Tranzaksiya } from 'src/tranzaktion/model/tranzaktion.model';
 
 @Injectable()
 export class OrderService {
@@ -142,7 +143,13 @@ export class OrderService {
 
   async findAll() {
     try {
-      const data = await this.OrderModel.findAll();
+      const data = await this.OrderModel.findAll({
+        include: [
+          { model: User },
+          { model: Order_Item },
+          { model: Tranzaksiya },
+        ],
+      });
       if (!data.length) {
         throw new NotFoundException('Not fount order');
       }
@@ -154,7 +161,13 @@ export class OrderService {
 
   async findOne(id: number) {
     try {
-      const data = await this.OrderModel.findByPk(id);
+      const data = await this.OrderModel.findByPk(id, {
+        include: [
+          { model: User },
+          { model: Order_Item },
+          { model: Tranzaksiya },
+        ],
+      });
       if (!data) {
         throw new NotFoundException('Not fount by id');
       }

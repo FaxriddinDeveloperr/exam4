@@ -45,14 +45,14 @@ export class Chat extends Model {
   product: Product;
 
   @BelongsTo(() => User, {
-    foreignKey: 'sendet_id',
+    foreignKey: 'sendet_id', as: "sender",
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   sender: User;
 
   @BelongsTo(() => User, {
-    foreignKey: 'receiver_id',
+    foreignKey: 'receiver_id', as: "revers",
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })

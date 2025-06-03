@@ -9,6 +9,8 @@ import { Market } from './model/market.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { catchError } from 'src/utils/chatchError';
 import { error } from 'console';
+import { User } from 'src/user/model/user.model';
+import { Product } from 'src/product/model/product.entity';
 
 @Injectable()
 export class MarketService {
@@ -30,7 +32,9 @@ export class MarketService {
 
   async findAllMarket() {
     try {
-      const data = await this.model.findAll();
+      const data = await this.model.findAll({
+        include: [{ model: User }, { model: Product }],
+      });
 
       if (!data.length) {
         throw new NotFoundException('No markets found');
@@ -48,7 +52,9 @@ export class MarketService {
 
   async findByIdMarket(id: number) {
     try {
-      const market = await this.model.findByPk(id);
+      const market = await this.model.findByPk(id, {
+        include: [{ model: User }, { model: Product }],
+      });
 
       if (!market) {
         return catchError(error);

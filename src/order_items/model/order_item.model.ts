@@ -40,6 +40,6 @@ export class Order_Item extends Model {
   @BelongsTo(() => Orders, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   order: Orders;
 
-  @BelongsTo(() => Product)
+  @BelongsTo(() => Product, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   product: Product;
 }

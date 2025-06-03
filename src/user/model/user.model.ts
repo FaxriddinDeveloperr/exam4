@@ -8,6 +8,7 @@ import { Product } from 'src/product/model/product.entity';
 import { Rating } from 'src/rating/model/rating.model';
 import { Savat } from 'src/savat/model/savat.model';
 import { SupportTicket } from 'src/support_ticket/model/support_ticket.model';
+import { Tranzaksiya } from 'src/tranzaktion/model/tranzaktion.model';
 
 @Table({ tableName: 'users' })
 export class User extends Model {
@@ -59,10 +60,10 @@ export class User extends Model {
   @HasMany(() => Orders)
   orders: Orders[];
 
-  @HasMany(() => Chat, { foreignKey: 'sender_id' })
+  @HasMany(() => Chat, { foreignKey: 'sender_id', as: 'senderchat' })
   sentMessages: Chat[];
 
-  @HasMany(() => Chat, { foreignKey: 'receiver_id' })
+  @HasMany(() => Chat, { foreignKey: 'receiver_id', as: 'reveiverchat' })
   receivedMessages: Chat[];
 
   @HasMany(() => SupportTicket)
@@ -74,15 +75,15 @@ export class User extends Model {
   @HasMany(() => Comment)
   comments: Comment[];
 
-  // @HasMany(() => Transaction)
-  // transactions: Transaction[];
+  @HasMany(() => Tranzaksiya)
+  transactions: Tranzaksiya[];
 
   @HasMany(() => Savat)
   savatItems: Savat[];
 
-  @HasMany(()=> Market, {foreignKey: "seller_id"})
-  market: Market[]
+  @HasMany(() => Market, { foreignKey: 'seller_id' })
+  market: Market[];
 
-  @HasMany(()=>Rating)
-  rating: Rating[]
+  @HasMany(() => Rating)
+  rating: Rating[];
 }

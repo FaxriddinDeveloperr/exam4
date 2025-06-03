@@ -9,6 +9,7 @@ import { Rating } from './model/rating.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from 'src/user/model/user.model';
 import { catchError } from 'src/utils/chatchError';
+import { Product } from 'src/product/model/product.entity';
 
 @Injectable()
 export class RatingService {
@@ -29,7 +30,9 @@ export class RatingService {
 
   async getAllRatings() {
     try {
-      const data = await this.model.findAll({ include: { model: User } });
+      const data = await this.model.findAll({
+        include: [{ model: User }, { model: Product }],
+      });
       if (!data.length) {
         throw new NotFoundException('Ratings not found');
       }
@@ -46,7 +49,7 @@ export class RatingService {
   async getRatingById(id: number) {
     try {
       const ratingById = await this.model.findByPk(+id, {
-        include: { model: User },
+        include: [{ model: User }, { model: Product }],
       });
       if (!ratingById) {
         throw new NotFoundException(`Rating by this id:${id} not found`);

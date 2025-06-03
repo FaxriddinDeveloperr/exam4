@@ -31,19 +31,15 @@ export class VerifyService {
         secret: String(user.dataValues.email),
         encoding: 'ascii',
         token: Token,
-        window: 1,
+        window: 3,
       });
 
       if (!isOtpValid) {
         throw new UnprocessableEntityException('Otp xato kiritilgan');
       }
-      console.log(isOtpValid);
 
       user.dataValues.IsActive = true;
-
-      await this.Model.update(user.dataValues, {
-        where: { id: user.dataValues.id },
-      });
+      await this.Model.update(user.dataValues, { where: { id: user.dataValues.id } });
 
       return { staatusCode: 201, message: 'Akkauntingiz aktivlashtirildi' };
     } catch (error) {

@@ -46,7 +46,9 @@ export class NotificationService {
 
   async findAll() {
     try {
-      const data = await this.NotifikationModel.findAll();
+      const data = await this.NotifikationModel.findAll({
+        include: { model: User },
+      });
       if (!data.length) {
         throw new NotFoundException();
       }
@@ -58,7 +60,9 @@ export class NotificationService {
 
   async findOne(id: number) {
     try {
-      const data = await this.NotifikationModel.findByPk(id);
+      const data = await this.NotifikationModel.findByPk(id, {
+        include: { model: User },
+      });
       if (!data) {
         throw new NotFoundException();
       }

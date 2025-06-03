@@ -8,13 +8,20 @@ import { CreateSavatDto } from './dto/create-savat.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Savat } from './model/savat.model';
 import { catchError } from 'src/utils/chatchError';
+import { Request } from 'express';
+import { User } from 'src/user/model/user.model';
+import { Product } from 'src/product/model/product.entity';
 @Injectable()
 export class SavatService {
   constructor(@InjectModel(Savat) private readonly Model: typeof Savat) {}
 
-  async create(createSavatDto: CreateSavatDto) {
+  async create(createSavatDto: CreateSavatDto, req: Request) {
     try {
-      const data = await this.Model.create({ ...createSavatDto });
+      const user = req['user'];
+      const data = await this.Model.create({
+        ...createSavatDto,
+        userId: user.id,
+      });
       return { Message: 'creted', statusCode: 201, data };
     } catch (error) {
       return catchError(error);
@@ -23,7 +30,9 @@ export class SavatService {
 
   async findAll() {
     try {
-      const data = await this.Model.findAll();
+      const data = await this.Model.findAll({
+        include: [{ model: User }, { model: Product }],
+      });
       if (!data.length) {
         throw new NotFoundException();
       }
