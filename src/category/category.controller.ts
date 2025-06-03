@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -35,13 +36,12 @@ export class CategoryController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoryService.getCategoryById(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.categoryService.getCategoryById(id);
   }
 
-
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoryService.deleteCategoryById(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.categoryService.deleteCategoryById(id);
   }
 }

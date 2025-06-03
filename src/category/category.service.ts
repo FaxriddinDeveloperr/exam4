@@ -11,19 +11,24 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Category } from './model/category.model';
 import { catchError } from 'src/utils/chatchError';
 import { Product } from 'src/product/model/product.entity';
+import { FileService } from 'src/file/file.service';
 
 @Injectable()
 export class CategoryService {
-  constructor(@InjectModel(Category) private model: typeof Category) {}
+  constructor(
+    @InjectModel(Category) private model: typeof Category,
+    private readonly fileServis: FileService
+  ) {}
 
   async createCategory(createCategoryDto: CreateCategoryDto) {
+    let img = createCategoryDto.icon;
     try {
       const data = await this.model.findOne({
         where: { name: createCategoryDto.name },
       });
       if (data) {
         throw new ConflictException(
-          `Category by this name: ${Category.name} not found`
+          `Category by this name: ${Category.name} olredy existes`
         );
       }
       const category = await this.model.create({ ...createCategoryDto });
@@ -33,6 +38,9 @@ export class CategoryService {
         data: category,
       };
     } catch (error) {
+      if (await this.fileServis.existFile(img)) {
+        await this.fileServis.deleteFile(img);
+      }
       return catchError(error);
     }
   }
@@ -78,6 +86,12 @@ export class CategoryService {
         throw new NotFoundException(`Category by this id:${id} not found`);
       }
       const deletedCategory = await this.model.destroy({ where: { id } });
+      if (!deletedCategory) {
+        throw new NotFoundException();
+      }
+      if (await this.fileServis.existFile(data.dataValues.icon)) {
+        await this.fileServis.deleteFile(data.dataValues.icon);
+      }
       return {
         statusCode: 200,
         message: 'success',
