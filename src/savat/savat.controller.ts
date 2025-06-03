@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Req,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { SavatService } from './savat.service';
 import { CreateSavatDto } from './dto/create-savat.dto';
@@ -28,13 +29,14 @@ export class SavatController {
     return this.savatService.create(createSavatDto, req);
   }
 
+  @UseGuards(AuthGuard)
   @Get()
-  findAll() {
-    return this.savatService.findAll();
+  findAll(@Req() req: Request) {
+    return this.savatService.findAll(req);
   }
-
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.savatService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    return this.savatService.remove(id, req);
   }
 }

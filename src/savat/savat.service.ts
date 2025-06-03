@@ -28,10 +28,12 @@ export class SavatService {
     }
   }
 
-  async findAll() {
+  async findAll(req: Request) {
     try {
+      const user = req['user'];
       const data = await this.Model.findAll({
-        include: [{ model: User }, { model: Product }],
+        where: { userId: user.id },
+        include: [{ model: Product }],
       });
       if (!data.length) {
         throw new NotFoundException();
@@ -42,8 +44,9 @@ export class SavatService {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, req: Request) {
     try {
+      
       const data = await this.Model.findByPk(id);
       if (!data) {
         throw new NotFoundException('Not fount by id');
