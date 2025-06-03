@@ -9,6 +9,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { Order_Item } from 'src/order_items/model/order_item.model';
+import { Tranzaksiya } from 'src/tranzaktion/model/tranzaktion.model';
 import { User } from 'src/user/model/user.model';
 
 @Table({ modelName: 'Orders' })
@@ -38,6 +39,6 @@ export class Orders extends Model {
   @HasMany(() => Order_Item)
   items: Order_Item[];
 
-  //   @HasOne(() => Transaction)
-  //   transaction: Transaction;
+  @HasMany(() => Tranzaksiya)
+  transaction: Tranzaksiya[];
 }

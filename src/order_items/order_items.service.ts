@@ -8,27 +8,35 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Order_Item } from './model/order_item.model';
 import { Orders } from 'src/order/model/order.entity';
 import { Product } from 'src/product/model/product.entity';
+import { catchError } from 'rxjs';
+import { User } from 'src/user/model/user.model';
 
 @Injectable()
 export class OrderItemsService {
   constructor(
-    @InjectModel(Order_Item) private readonly Model: typeof Order_Item,
+    @InjectModel(Order_Item) private readonly Model: typeof Order_Item
   ) {}
 
-  async findAll() {
+  async findAll(query: Record<string, any>) {
     try {
-      const data = await this.Model.findAll({
-        include: [
-          { model: Orders, required: true },
-        ],
+      let { page, limit } = query;
+      page = parseInt(page) || 1;
+      limit = parseInt(limit) || 10;
+      const offset = (page - 1) * limit;
+      const { count: total, rows: data } = await this.Model.findAndCountAll({
+        limit,
+        offset,
+        include: [{ model: Product }, { model: Orders }],
       });
-      if (!data.length) {
-        throw new NotFoundException();
-      }
-      return { status: 200, data };
+      return {
+        statuscode: 200,
+        total,
+        page,
+        limit,
+        data,
+      };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 }

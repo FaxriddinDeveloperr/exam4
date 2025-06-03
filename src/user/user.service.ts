@@ -19,7 +19,16 @@ import { Request } from 'express';
 import { MailService } from 'src/mail/mail.service';
 import { totp } from 'otplib';
 import { EmailPassword } from './dto/Email_reset_password';
+import { catchError } from 'src/utils/chatchError';
 import { Op } from 'sequelize';
+import { Market } from 'src/market/model/market.model';
+import { Orders } from 'src/order/model/order.entity';
+import { Savat } from 'src/savat/model/savat.model';
+import { Comment } from 'src/comment/model/comment.model';
+import { Chat } from 'src/chat/model/chat.entity';
+import { Tranzaksiya } from 'src/tranzaktion/model/tranzaktion.model';
+import { Notification } from 'src/notification/model/notification.model';
+import { Rating } from 'src/rating/model/rating.model';
 
 @Injectable()
 export class UserService {
@@ -58,8 +67,7 @@ export class UserService {
           "Siz muvofiyaqatliy ro'yhaddan o'tdingiz emailingizga borgan tasdiqlash kodi orqaliy shahsingizni tasdiqlayng!",
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -94,86 +102,11 @@ export class UserService {
       });
       return { accsestoken, refreshtoken };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
-  async findAll(query: Record<string, any>) {
-    try {
-      let {
-        page,
-        limit,
-        full_name,
-        phone,
-        region,
-        sortBy,
-        order,
-      } = query;
-  
-      page = parseInt(page) || 1;
-      limit = parseInt(limit) || 10;
-      const offset = (page - 1) * limit;
-      const sortColumn = sortBy || 'full_name';
-      const sortOrder = order === 'desc' ? 'DESC' : 'ASC';
-  
-      const where: any = {};
-  
-      if (full_name) {
-        where.full_name = { [Op.iLike]: `%${full_name}%` };
-      }
-  
-      if (phone) {
-        where.phone = { [Op.iLike]: `%${phone}%` };
-      }
-  
-      if (region) {
-        where.region = { [Op.iLike]: `%${region}%` };
-      }
-  
-      const { count: total, rows: data } = await this.Model.findAndCountAll({
-        where,
-        order: [[sortColumn, sortOrder]],
-        limit,
-        offset,
-      });
-  
-      return {
-        total,
-        page,
-        limit,
-        data,
-      };
-    } catch (error) {
-      return { message: error.message || 'Xatolik yuz berdi' };
-    }
-  }
-  
 
-  async findOne(id: number, req: Request) {
-    try {
-      const users = req['user'];
-
-      const data = await this.Model.findByPk(id);
-      if (!data) {
-        throw new NotFoundException('Not fount user');
-      }
-
-      if (
-        users.id == data.dataValues.id ||
-        users.role == Role.ADMIN ||
-        users.role == Role.SUPER_ADMIN
-      ) {
-        return { data };
-      } else {
-        throw new ForbiddenException(
-          "Huquqingiz yetarliy emas, siz faqat o'z accauntingizni ko'rishingiz mumkin"
-        );
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
 
   async update(updateUserdto: UpdateUserdto, id: number, req: Request) {
     try {
@@ -186,7 +119,6 @@ export class UserService {
       if (
         !(
           data.id == users.id ||
-          users.role == Role.ADMIN ||
           users.role == Role.SUPER_ADMIN
         )
       ) {
@@ -203,8 +135,7 @@ export class UserService {
         }),
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
   async reset_password(data: ResetPasswordDto) {
@@ -228,14 +159,11 @@ export class UserService {
         message: 'Parolingizni tiklash uchun emailingizga xabar yuborildi',
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
   async new_password(data: EmailPassword) {
-    console.log(data);
-
     try {
       const token = this.JWT.verify(data.token, {
         secret: String(process.env.EMAIL_SECRET),
@@ -259,12 +187,10 @@ export class UserService {
           message: "Parol muvaffaqiyatli o'zgartirildi!",
         };
       } catch (error) {
-        if (error instanceof HttpException) throw error;
-        throw new InternalServerErrorException(error.message);
+        return catchError(error);
       }
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new UnauthorizedException('Token vaxti tugadi');
+      return catchError(error);
     }
   }
 
@@ -276,11 +202,13 @@ export class UserService {
         throw new UnauthorizedException('Not fount by id');
       }
 
-      const accsestoken = this.AccesToken({ id: data.id, role: data.role });
+      const accsestoken = this.AccesToken({
+        id: data.dataValues.id,
+        role: data.dataValues.role,
+      });
       return { accsestoken };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 

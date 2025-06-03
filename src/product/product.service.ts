@@ -1,14 +1,17 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-  HttpException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Product } from './model/product.entity';
 import { Op } from 'sequelize';
+import { catchError } from 'src/utils/chatchError';
+import { Market } from 'src/market/model/market.model';
+import { Order_Item } from 'src/order_items/model/order_item.model';
+import { Comment } from 'src/comment/model/comment.model';
+import { Savat } from 'src/savat/model/savat.model';
+import { Category } from 'src/category/model/category.model';
+import { Rating } from 'src/rating/model/rating.model';
+import { Chat } from 'src/chat/model/chat.entity';
 
 @Injectable()
 export class ProductService {
@@ -24,8 +27,7 @@ export class ProductService {
         data: product,
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -51,6 +53,15 @@ export class ProductService {
         order: [[sortColum, sortOrder]],
         limit,
         offset,
+        include: [
+          { model: Market },
+          { model: Order_Item },
+          { model: Comment },
+          { model: Savat },
+          { model: Category },
+          { model: Rating },
+          { model: Chat },
+        ],
       });
       return {
         total,
@@ -59,14 +70,23 @@ export class ProductService {
         data,
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
   async findByIdProduct(id: number) {
     try {
-      const product = await this.model.findByPk(id);
+      const product = await this.model.findByPk(id, {
+        include: [
+          { model: Market },
+          { model: Order_Item },
+          { model: Comment },
+          { model: Savat },
+          { model: Category },
+          { model: Rating },
+          { model: Chat },
+        ],
+      });
       if (!product) {
         throw new NotFoundException(`Product with id ${id} not found`);
       }
@@ -76,8 +96,7 @@ export class ProductService {
         data: product,
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -101,8 +120,7 @@ export class ProductService {
         data: updatedProduct,
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -118,8 +136,7 @@ export class ProductService {
         data: { id },
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 }

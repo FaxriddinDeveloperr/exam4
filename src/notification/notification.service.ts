@@ -9,6 +9,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Notification } from './model/notification.model';
 import { User } from 'src/user/model/user.model';
 import { MailService } from 'src/mail/mail.service';
+import { catchError } from 'rxjs';
 
 @Injectable()
 export class NotificationService {
@@ -39,34 +40,35 @@ export class NotificationService {
 
       return { message: 'creted', data: creted };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
   async findAll() {
     try {
-      const data = await this.NotifikationModel.findAll();
+      const data = await this.NotifikationModel.findAll({
+        include: { model: User },
+      });
       if (!data.length) {
         throw new NotFoundException();
       }
       return { statusCode: 200, data };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
   async findOne(id: number) {
     try {
-      const data = await this.NotifikationModel.findByPk(id);
+      const data = await this.NotifikationModel.findByPk(id, {
+        include: { model: User },
+      });
       if (!data) {
         throw new NotFoundException();
       }
-      return {statusCode: 200, data}
+      return { statusCode: 200, data };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -79,8 +81,7 @@ export class NotificationService {
       await this.NotifikationModel.destroy({ where: { id: id } });
       return { statusCode: 200, message: 'Deleted' };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 }

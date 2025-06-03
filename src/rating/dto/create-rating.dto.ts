@@ -12,7 +12,7 @@ export class CreateRatingDto {
   @IsNotEmpty()
   sellerId: number;
 
-  @ApiProperty({ example: 100 })
+  @ApiProperty({ example: 5 })
   @IsNumber()
   @Min(1)
   @Max(5)

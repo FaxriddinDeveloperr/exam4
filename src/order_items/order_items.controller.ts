@@ -1,15 +1,28 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { OrderItemsService } from './order_items.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guard/guard.service';
 
-@ApiTags("Order_Item")
+@ApiTags('Order_Item')
 @Controller('order-items')
 export class OrderItemsController {
   constructor(private readonly orderItemsService: OrderItemsService) {}
 
+  @UseGuards(AuthGuard)
   @Get()
-  findAll() {
-    return this.orderItemsService.findAll();
+  @ApiQuery({ name: 'page', required: false, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, example: 10 })
+  findAll(@Query() query: Record<string, any>) {
+    return this.orderItemsService.findAll(query);
   }
-
 }

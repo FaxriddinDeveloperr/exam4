@@ -33,6 +33,9 @@ import { Notification } from './notification/model/notification.model';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { UploadController } from './uploads/uplout.controller';
+import { TranzaktionModule } from './tranzaktion/tranzaktion.module';
+import { Tranzaksiya } from './tranzaktion/model/tranzaktion.model';
+import { InfoModule } from './info/info.module';
 
 @Module({
   imports: [
@@ -71,7 +74,8 @@ import { UploadController } from './uploads/uplout.controller';
         Category,
         Chat,
         Comment,
-        Notification
+        Notification,
+        Tranzaksiya
       ],
 
     }),
@@ -91,11 +95,14 @@ import { UploadController } from './uploads/uplout.controller';
     NotificationModule,
     ChatModule,
     CommentModule,
+    TranzaktionModule,
+    InfoModule,
 
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "..","/uploads"),
       serveRoot: "/file"
     }),
+
   ],
   controllers:[UploadController],
 })

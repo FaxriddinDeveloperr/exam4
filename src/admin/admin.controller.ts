@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { RegisterUserdto, Role } from 'src/user/dto/register-user.dto';
@@ -19,6 +20,8 @@ import { Roles } from 'src/Decorator/role.decorator';
 import { RoleGuard } from 'src/guard/role.guard';
 import { ResetPasswordDto } from 'src/user/dto/reset_password-user.dto';
 import { LoginUserdto } from 'src/user/dto/login-user.dto';
+import { AdminVerify } from 'src/user/dto/admin.signIn_verify.dt';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('admin')
 export class AdminController {
@@ -35,17 +38,16 @@ export class AdminController {
   @UseGuards(RoleGuard)
   @Roles(Role.SUPER_ADMIN, Role.ADMIN)
   @UseGuards(AuthGuard)
-  @Get("all")
-  findAll() {
-    return this.adminService.findAll();
-  }
-
-  @UseGuards(RoleGuard)
-  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
-  @UseGuards(AuthGuard)
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.adminService.findOne(+id);
+  @Get('all')
+  @ApiQuery({ name: 'page', required: false, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, example: 10 })
+  @ApiQuery({ name: 'full_name', required: false})
+  @ApiQuery({ name: 'phone', required: false})
+  @ApiQuery({ name: 'region', required: false})
+  @ApiQuery({ name: 'sortBy', required: false, enum: ["region","full_name"] })
+  @ApiQuery({ name: 'order', required: true, enum: ['asc', 'desc'] })
+  findAll(@Query() query: Record<string, any>) {
+    return this.adminService.findAll(query);
   }
 
   @UseGuards(RoleGuard)
@@ -59,9 +61,9 @@ export class AdminController {
   @UseGuards(RoleGuard)
   @Roles(Role.SUPER_ADMIN, Role.ADMIN)
   @UseGuards(AuthGuard)
-  @Post("add_seller")
-  Add_seller(@Body() data: RegisterUserdto){
-    return this.adminService.add_Seller(data)
+  @Post('add_seller')
+  Add_seller(@Body() data: RegisterUserdto) {
+    return this.adminService.add_Seller(data);
   }
 
   @UseGuards(AuthGuard, RoleGuard)
@@ -74,9 +76,14 @@ export class AdminController {
   @Roles(Role.SUPER_ADMIN, Role.ADMIN)
   @Post('reset_password')
   reset_password(@Body() data: ResetPasswordDto) {
-      return this.adminService.reset_password(data)
+    return this.adminService.reset_password(data);
   }
-  SiginIn(@Body() data: LoginUserdto){
-    return this.adminService.SiginIn(data)
+  @Post('SiginIn')
+  SiginIn(@Body() data: LoginUserdto) {
+    return this.adminService.SiginIn(data);
+  }
+  @Post('SignInVerify')
+  Verify(@Body() data: AdminVerify) {
+    return this.adminService.SignVerify(data);
   }
 }
