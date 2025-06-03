@@ -12,12 +12,17 @@ import { Savat } from 'src/savat/model/savat.model';
 import { Category } from 'src/category/model/category.model';
 import { Rating } from 'src/rating/model/rating.model';
 import { Chat } from 'src/chat/model/chat.entity';
+import { FileService } from 'src/file/file.service';
 
 @Injectable()
 export class ProductService {
-  constructor(@InjectModel(Product) private model: typeof Product) {}
+  constructor(
+    @InjectModel(Product) private model: typeof Product,
+    private readonly fileservis: FileService
+  ) {}
 
   async createProduct(createProductDto: CreateProductDto) {
+    let img = createProductDto.image;
     try {
       const product = await this.model.create({ ...createProductDto });
 
@@ -27,6 +32,9 @@ export class ProductService {
         data: product,
       };
     } catch (error) {
+      if (await this.fileservis.existFile(img)) {
+        this.fileservis.deleteFile(img);
+      }
       return catchError(error);
     }
   }
@@ -101,6 +109,7 @@ export class ProductService {
   }
 
   async updateProduct(id: number, updateProductDto: UpdateProductDto) {
+    let img = updateProductDto.image;
     try {
       const product = await this.model.findByPk(id);
       if (!product) {
@@ -109,26 +118,39 @@ export class ProductService {
         );
       }
 
-      const [, [updatedProduct]] = await this.model.update(updateProductDto, {
+      const [_, updatedProduct] = await this.model.update(updateProductDto, {
         where: { id },
         returning: true,
       });
 
+      if (await this.fileservis.existFile(product.dataValues.image)) {
+        await this.fileservis.deleteFile(product.dataValues.image);
+      }
       return {
         statusCode: 200,
         message: 'Product updated successfully',
-        data: updatedProduct,
+        data: updatedProduct[0],
       };
     } catch (error) {
+      if (await this.fileservis.existFile(img)) {
+        await this.fileservis.deleteFile(img);
+      }
       return catchError(error);
     }
   }
 
   async deletProduct(id: number) {
     try {
+      let product = await this.model.findByPk(id);
+      if (!product) {
+        throw new NotFoundException();
+      }
       const deletedCount = await this.model.destroy({ where: { id } });
       if (!deletedCount) {
-        throw new NotFoundException(`Product with id ${id} not found`);
+        throw new NotFoundException();
+      }
+      if (await this.fileservis.existFile(product.dataValues.image)) {
+        await this.fileservis.deleteFile(product.dataValues.image);
       }
       return {
         statusCode: 200,

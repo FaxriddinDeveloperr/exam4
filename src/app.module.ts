@@ -36,6 +36,7 @@ import { UploadController } from './uploads/uplout.controller';
 import { TranzaktionModule } from './tranzaktion/tranzaktion.module';
 import { Tranzaksiya } from './tranzaktion/model/tranzaktion.model';
 import { InfoModule } from './info/info.module';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -99,10 +100,11 @@ import { InfoModule } from './info/info.module';
     InfoModule,
 
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, "..","/uploads"),
+      rootPath: join(__dirname, "..","..","/uploads"),
       serveRoot: "/file"
     }),
 
+    FileModule,
   ],
   controllers:[UploadController],
 })

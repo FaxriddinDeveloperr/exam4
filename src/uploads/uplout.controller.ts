@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Post,
   UploadedFile,
@@ -20,15 +21,15 @@ import { AuthGuard } from 'src/guard/guard.service';
 import { Roles } from 'src/Decorator/role.decorator';
 import { Role } from 'src/user/dto/register-user.dto';
 import { RoleGuard } from 'src/guard/role.guard';
+import { Request } from 'express';
 
-const uploadPath = path.join(__dirname, '..', '..', 'uploads');
+const uploadPath = path.join(__dirname, '..', '..', '..', 'uploads');
 if (!existsSync(uploadPath)) {
   mkdirSync(uploadPath, { recursive: true });
 }
 @ApiTags('File Upload')
 @Controller('upload')
 export class UploadController {
-
   @UseGuards(RoleGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.SELLER)
   @UseGuards(AuthGuard)
@@ -36,15 +37,45 @@ export class UploadController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: (req, file, cb) => {
+        destination: (
+          req: Request,
+          file,
+          cb: (error: Error | null, destination: string) => void
+        ) => {
           cb(null, uploadPath);
         },
-        filename: (req, file, cb) => {
+        filename: (
+          req: Request,
+          file,
+          cb: (error: Error | null, destination: string) => void
+        ) => {
           let name = `${Date.now()}${Math.floor(Math.random() * 1000000)}${path.extname(file.originalname)}`;
           cb(null, name);
         },
       }),
-    }),
+      fileFilter: (req, file, cb) => {
+        const allowedExtensions = [
+          '.jpeg',
+          '.png',
+          '.jpg',
+          '.svg',
+          '.heic',
+          '.webp',
+        ];
+        const ext = path.extname(file.originalname).toLowerCase();
+
+        if (allowedExtensions.includes(ext)) {
+          cb(null, true);
+        } else {
+          cb(
+            new BadRequestException(
+              `Only allowed files: ${allowedExtensions.join(', ')}`
+            ),
+            false
+          );
+        }
+      },
+    })
   )
   @ApiOperation({ summary: 'Upload a file' })
   @ApiConsumes('multipart/form-data')
