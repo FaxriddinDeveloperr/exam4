@@ -50,7 +50,7 @@ export class InfoController {
     return this.infoService.my_marked_seller(req);
   }
     @UseGuards(RoleGuard)
-    @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+    @Roles(Role.SUPER_ADMIN)
     @UseGuards(AuthGuard)
     @Get('All')
     @ApiQuery({name: 'page', required: false, example: 1})
