@@ -22,15 +22,10 @@ export class ProductService {
     private readonly fileservis: FileService
   ) {}
 
-  async createProduct(createProductDto: CreateProductDto, req: Request) {
+  async createProduct(createProductDto: CreateProductDto) {
     let img = createProductDto.image;
     try {
-      let seller = req['user'];
-      let data = {
-        ...createProductDto,
-        seller_id: seller.id,
-      };
-      const product = await this.model.create({ ...data });
+      const product = await this.model.create({ ...createProductDto });
 
       return {
         statusCode: 201,

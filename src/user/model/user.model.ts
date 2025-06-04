@@ -54,9 +54,6 @@ export class User extends Model {
   })
   region: string;
 
-  @HasMany(() => Product)
-  products: Product[];
-
   @HasMany(() => Orders)
   orders: Orders[];
 

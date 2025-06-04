@@ -56,21 +56,12 @@ export class Product extends Model {
   })
   category_id: number;
 
-  @ForeignKey(() => User)
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  seller_id: number;
 
   @Column({
     type: DataType.DECIMAL(10, 2),
     allowNull: false,
   })
   price: number;
-
-  @BelongsTo(() => User, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  seller: User;
 
   @BelongsTo(() => Market, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   market: Market;
