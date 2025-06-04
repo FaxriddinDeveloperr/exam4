@@ -13,18 +13,24 @@ import { Category } from 'src/category/model/category.model';
 import { Rating } from 'src/rating/model/rating.model';
 import { Chat } from 'src/chat/model/chat.entity';
 import { FileService } from 'src/file/file.service';
+import { Request } from 'express';
 
 @Injectable()
 export class ProductService {
   constructor(
-    @InjectModel(Product) private model: typeof Product,
+    @InjectModel(Product) private readonly model: typeof Product,
     private readonly fileservis: FileService
   ) {}
 
-  async createProduct(createProductDto: CreateProductDto) {
+  async createProduct(createProductDto: CreateProductDto, req: Request) {
     let img = createProductDto.image;
     try {
-      const product = await this.model.create({ ...createProductDto });
+      let seller = req['user'];
+      let data = {
+        ...createProductDto,
+        seller_id: seller.id,
+      };
+      const product = await this.model.create({ ...data });
 
       return {
         statusCode: 201,

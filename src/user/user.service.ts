@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   HttpException,
@@ -20,15 +21,6 @@ import { MailService } from 'src/mail/mail.service';
 import { totp } from 'otplib';
 import { EmailPassword } from './dto/Email_reset_password';
 import { catchError } from 'src/utils/chatchError';
-import { Op } from 'sequelize';
-import { Market } from 'src/market/model/market.model';
-import { Orders } from 'src/order/model/order.entity';
-import { Savat } from 'src/savat/model/savat.model';
-import { Comment } from 'src/comment/model/comment.model';
-import { Chat } from 'src/chat/model/chat.entity';
-import { Tranzaksiya } from 'src/tranzaktion/model/tranzaktion.model';
-import { Notification } from 'src/notification/model/notification.model';
-import { Rating } from 'src/rating/model/rating.model';
 
 @Injectable()
 export class UserService {
@@ -199,7 +191,10 @@ export class UserService {
       let users = req['user'];
       const data = await this.Model.findByPk(users.id);
       if (!data) {
-        throw new UnauthorizedException('Not fount by id');
+        throw new UnauthorizedException('Not fount user');
+      }
+      if(data.dataValues.IsActive == false){
+        throw new BadRequestException("Akauntingiz Faollashtirilmagan?")
       }
 
       const accsestoken = this.AccesToken({
@@ -228,7 +223,7 @@ export class UserService {
   EmailToken(peloud: { email: string }) {
     return this.JWT.sign(peloud, {
       secret: process.env.EMAIL_SECRET,
-      expiresIn: '2m',
+      expiresIn: '3m',
     });
   }
 }

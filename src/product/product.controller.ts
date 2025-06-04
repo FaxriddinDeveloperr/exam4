@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -17,6 +18,7 @@ import { AuthGuard } from 'src/guard/guard.service';
 import { RoleGuard } from 'src/guard/role.guard';
 import { Roles } from 'src/Decorator/role.decorator';
 import { Role } from 'src/user/dto/register-user.dto';
+import { Request } from 'express';
 
 @Controller('product')
 export class ProductController {
@@ -25,8 +27,8 @@ export class ProductController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.SELLER)
   @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productService.createProduct(createProductDto);
+  create(@Body() createProductDto: CreateProductDto,@Req() req:Request) {
+    return this.productService.createProduct(createProductDto, req);
   }
 
   @Get()

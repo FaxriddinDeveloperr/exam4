@@ -220,7 +220,7 @@ export class AdminService {
         throw new UnprocessableEntityException('Wrong Otp');
       }
       user.dataValues.IsActive = true;
-      await this.Model.update(user, { where: { email: data.email } });
+      await this.Model.update(user.dataValues, { where: { email: data.email } });
 
       const accsestoken = this.jwt.AccesToken({
         id: user.dataValues.id,
