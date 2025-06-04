@@ -53,7 +53,7 @@ export class InfoService {
         throw new ForbiddenException();
       }
       const data = await this.UserModel.findByPk(user.id, {
-        include: [{ model: Market, include: [Product] }, { model: Rating }],
+        include: [{ model: Market, include: [Product] }],
       });
       return { data: data };
     } catch (error) {
@@ -80,7 +80,7 @@ export class InfoService {
         throw new ForbiddenException();
       }
       const Marked = await this.MarketModel.findAll({
-        where: { seller_Id: user.id },
+        where: { seller_id: user.id },
         include: [{ model: Product, include: [Category, Chat, Rating] }],
       });
       if (!Marked.length) {
@@ -91,35 +91,36 @@ export class InfoService {
       return catchError(error);
     }
   }
-   async findAll(query: Record<string, any>) {
-      try {
-        let { limit, page, order, sortBy, region, phone, full_name } = query;
-        page = parseInt(page) || 1;
-        limit = parseInt(limit) || 10;
-        const offset = (page - 1) * limit;
-        const sortColum = sortBy || 'full_name';
-        const sortorder = order == 'asc' ? 'ASC' : 'DESC';
-  
-        const where: any = {};
-        if (region) {
-          where.region = { [Op.iLike]: `%${region}%` };
-        }
-        if (phone) {
-          where.phone = { [Op.iLike]: `%${phone}%` };
-        }
-        if (full_name) {
-          where.full_name = { [Op.iLike]: `%${full_name}%` };
-        }
-        const { count: total, rows: data } = await this.UserModel.findAndCountAll({
+  async findAll(query: Record<string, any>) {
+    try {
+      let { limit, page, order, sortBy, region, phone, full_name } = query;
+      page = parseInt(page) || 1;
+      limit = parseInt(limit) || 10;
+      const offset = (page - 1) * limit;
+      const sortColum = sortBy || 'full_name';
+      const sortorder = order == 'asc' ? 'ASC' : 'DESC';
+
+      const where: any = {};
+      if (region) {
+        where.region = { [Op.iLike]: `%${region}%` };
+      }
+      if (phone) {
+        where.phone = { [Op.iLike]: `%${phone}%` };
+      }
+      if (full_name) {
+        where.full_name = { [Op.iLike]: `%${full_name}%` };
+      }
+      const { count: total, rows: data } = await this.UserModel.findAndCountAll(
+        {
           where,
           order: [[sortColum, sortorder]],
           limit,
           offset,
-        });
-        return { statusCode: 200, total, page, limit, data };
-      } catch (error) {
-        return catchError(error);
-      }
+        }
+      );
+      return { statusCode: 200, total, page, limit, data };
+    } catch (error) {
+      return catchError(error);
     }
-  
+  }
 }

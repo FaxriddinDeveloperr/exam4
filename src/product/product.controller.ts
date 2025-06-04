@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   Req,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -27,8 +28,8 @@ export class ProductController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.SELLER)
   @Post()
-  create(@Body() createProductDto: CreateProductDto,@Req() req:Request) {
-    return this.productService.createProduct(createProductDto, req);
+  create(@Body() createProductDto: CreateProductDto) {
+    return this.productService.createProduct(createProductDto);
   }
 
   @Get()
@@ -47,15 +48,15 @@ export class ProductController {
     return this.productService.findByIdProduct(+id);
   }
   @UseGuards(AuthGuard, RoleGuard)
-  @Roles(Role.SELLER, Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(Role.SELLER)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.updateProduct(+id, updateProductDto);
+  update(@Param('id',ParseIntPipe) id: number, @Body() updateProductDto: UpdateProductDto) {
+    return this.productService.updateProduct(id, updateProductDto);
   }
 
   @Roles(Role.SELLER, Role.ADMIN, Role.SUPER_ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productService.deletProduct(+id);
+  remove(@Param('id',ParseIntPipe) id: number) {
+    return this.productService.deletProduct(id);
   }
 }
