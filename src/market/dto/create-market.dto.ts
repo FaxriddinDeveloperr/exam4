@@ -7,11 +7,6 @@ export class CreateMarketDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  @IsNotEmpty()
-  seller_id: number;
-
   @ApiProperty({ example: 5 })
   @IsNumber()
   @IsNotEmpty()

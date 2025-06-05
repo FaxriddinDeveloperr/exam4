@@ -192,8 +192,11 @@ export class AdminService {
       let otp = totp.generate(String(data.email));
       await this.mail.sendMail(
         data.email,
-        'Sizning Hisobingizga kirish uchun tasdiqlash kodi',
-        `<h2>Token: <b>${otp}</b></h2>`
+        `Bu Online Marked dan kelgan habar`,
+        `<div style="font-family: Arial, sans-serif; padding: 10px; border: 2px solid #ccc;">
+          <h4>Iltimos, ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning.</h4>
+          <h2> <b>Sizning tasdiqlash kodingiz: </b> <h1>${otp}</h1></h2>
+        </div>`
       );
       return {
         message: `Hisobingizni tasdiqlash ushun ushbu emailga xabar jo'natildi,  ${data.email}`,

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/sequelize';
@@ -14,6 +18,7 @@ import { Rating } from 'src/rating/model/rating.model';
 import { Chat } from 'src/chat/model/chat.entity';
 import { FileService } from 'src/file/file.service';
 import { Request } from 'express';
+import { Role } from 'src/user/dto/register-user.dto';
 
 @Injectable()
 export class ProductService {
@@ -25,6 +30,7 @@ export class ProductService {
   async createProduct(createProductDto: CreateProductDto) {
     let img = createProductDto.image;
     try {
+      
       const product = await this.model.create({ ...createProductDto });
 
       return {
@@ -109,14 +115,26 @@ export class ProductService {
     }
   }
 
-  async updateProduct(id: number, updateProductDto: UpdateProductDto) {
+  async updateProduct(
+    id: number,
+    updateProductDto: UpdateProductDto,
+    req: Request
+  ) {
     let img = updateProductDto.image;
+    let seller = req['user'];
     try {
-      const product = await this.model.findByPk(id);
+      const product = await this.model.findOne({
+        where: { id: id },
+        include: { model: Market, as: "market", attributes: ['seller_id'] },
+      });
       if (!product) {
         throw new NotFoundException(
           `Product with id ${id} not found for update`
         );
+      }
+      
+      if (product.market.seller_id != seller.id) {
+        throw new ForbiddenException();
       }
 
       const [_, updatedProduct] = await this.model.update(updateProductDto, {
@@ -140,12 +158,26 @@ export class ProductService {
     }
   }
 
-  async deletProduct(id: number) {
+  async deletProduct(id: number, req: Request) {
     try {
-      let product = await this.model.findByPk(id);
+      let user = req['user'];
+      const product = await this.model.findOne({
+        where: { id: id },
+        include: { model: Market, attributes: ['seller_id'] },
+      });
       if (!product) {
-        throw new NotFoundException();
+        throw new NotFoundException(
+          `Product with id ${id} not found for update`
+        );
       }
+      if (
+        product['Market'].seller_id != user.id ||
+        user.role != Role.SUPER_ADMIN ||
+        user.role != Role.ADMIN
+      ) {
+        throw new ForbiddenException();
+      }
+
       const deletedCount = await this.model.destroy({ where: { id } });
       if (!deletedCount) {
         throw new NotFoundException();
