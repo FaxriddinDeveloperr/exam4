@@ -26,8 +26,8 @@ export class MarketController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.SELLER)
   @Post()
-  create(@Body() createMarketDto: CreateMarketDto) {
-    return this.marketService.createMarket(createMarketDto);
+  create(@Body() createMarketDto: CreateMarketDto, @Req() req: Request) {
+    return this.marketService.createMarket(createMarketDto, req);
   }
   @UseGuards(AuthGuard)
   @Get()
@@ -50,7 +50,7 @@ export class MarketController {
     return this.marketService.updateMarket(id, updateMarketDto, req);
   }
   @UseGuards(AuthGuard, RoleGuard)
-  @Roles(Role.SELLER,Role.SUPER_ADMIN)
+  @Roles(Role.SELLER, Role.SUPER_ADMIN)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
     return this.marketService.deleteMarket(id, req);

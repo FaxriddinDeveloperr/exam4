@@ -14,7 +14,6 @@ import { Market } from 'src/market/model/market.model';
 import { Order_Item } from 'src/order_items/model/order_item.model';
 import { Rating } from 'src/rating/model/rating.model';
 import { Savat } from 'src/savat/model/savat.model';
-import { User } from 'src/user/model/user.model';
 
 @Table({ tableName: 'product' })
 export class Product extends Model {
@@ -56,14 +55,17 @@ export class Product extends Model {
   })
   category_id: number;
 
-
   @Column({
     type: DataType.DECIMAL(10, 2),
     allowNull: false,
   })
   price: number;
 
-  @BelongsTo(() => Market, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+  @BelongsTo(() => Market, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    foreignKey: 'market_id' as 'marked',
+  })
   market: Market;
 
   @BelongsTo(() => Category, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })

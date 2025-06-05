@@ -56,6 +56,6 @@ export class Market extends Model {
   })
   follower_count: number;
 
-  @HasMany(() => Product)
+  @HasMany(() => Product, { foreignKey: 'market_id' as 'product' })
   product: Product[];
 }

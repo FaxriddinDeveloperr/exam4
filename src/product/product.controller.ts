@@ -50,13 +50,13 @@ export class ProductController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.SELLER)
   @Patch(':id')
-  update(@Param('id',ParseIntPipe) id: number, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.updateProduct(id, updateProductDto);
+  update(@Param('id',ParseIntPipe) id: number, @Body() updateProductDto: UpdateProductDto, @Req() req:Request) {
+    return this.productService.updateProduct(id, updateProductDto, req);
   }
 
   @Roles(Role.SELLER, Role.ADMIN, Role.SUPER_ADMIN)
   @Delete(':id')
-  remove(@Param('id',ParseIntPipe) id: number) {
-    return this.productService.deletProduct(id);
+  remove(@Param('id',ParseIntPipe) id: number, @Req() req: Request) {
+    return this.productService.deletProduct(id,req);
   }
 }
