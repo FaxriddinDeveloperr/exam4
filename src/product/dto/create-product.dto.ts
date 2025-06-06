@@ -7,7 +7,7 @@ export class CreateProductDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ example: 'link' })
+  @ApiProperty({example: ""})
   @IsString()
   @IsNotEmpty()
   image: string;

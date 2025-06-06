@@ -7,7 +7,8 @@ export class UpdateProductDto {
   @IsString()
   @IsOptional()
   name: string;
-  @ApiProperty({ example: 'link' })
+
+  @ApiProperty({example: ""})
   @IsString()
   @IsOptional()
   image: string;
