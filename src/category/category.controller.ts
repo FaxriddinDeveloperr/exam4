@@ -39,7 +39,8 @@ export class CategoryController {
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.categoryService.getCategoryById(id);
   }
-
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.categoryService.deleteCategoryById(id);

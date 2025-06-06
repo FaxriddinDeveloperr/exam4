@@ -98,8 +98,6 @@ export class UserService {
     }
   }
 
-
-
   async update(updateUserdto: UpdateUserdto, id: number, req: Request) {
     try {
       const users = req['user'];
@@ -109,10 +107,8 @@ export class UserService {
       }
 
       if (
-        !(
-          data.id == users.id ||
-          users.role == Role.SUPER_ADMIN
-        )
+        data.dataValues.id !== users.id &&
+        users.dataValues.role !== Role.SUPER_ADMIN
       ) {
         throw new UnauthorizedException(
           "Malumotlarni o'zgartirishga huquqingiz yetarliy emas"
@@ -193,8 +189,8 @@ export class UserService {
       if (!data) {
         throw new UnauthorizedException('Not fount user');
       }
-      if(data.dataValues.IsActive == false){
-        throw new BadRequestException("Akauntingiz Faollashtirilmagan?")
+      if (data.dataValues.IsActive == false) {
+        throw new BadRequestException('Akauntingiz Faollashtirilmagan?');
       }
 
       const accsestoken = this.AccesToken({

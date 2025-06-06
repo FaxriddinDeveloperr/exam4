@@ -34,7 +34,7 @@ export class SupportTicket extends Model {
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    defaultValue: "pending"
   })
   status: string;
 }

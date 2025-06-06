@@ -53,7 +53,7 @@ export class MarketService {
           include: [{ model: User }, { model: Product }],
         });
         if (!data.length) {
-          throw new NotFoundException('No markets found');
+          throw new NotFoundException('Not found market ');
         }
         return {
           statusCode: 200,

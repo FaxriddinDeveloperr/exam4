@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   HttpException,
   Injectable,
   InternalServerErrorException,
@@ -9,20 +10,25 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Savat } from './model/savat.model';
 import { catchError } from 'src/utils/chatchError';
 import { Request } from 'express';
-import { User } from 'src/user/model/user.model';
 import { Product } from 'src/product/model/product.entity';
 @Injectable()
 export class SavatService {
-  constructor(@InjectModel(Savat) private readonly Model: typeof Savat) {}
+  constructor(@InjectModel(Savat) private readonly Model: typeof Savat,
+  @InjectModel(Product) private readonly ProductModel: typeof Product,
+) {}
 
   async create(createSavatDto: CreateSavatDto, req: Request) {
     try {
       const user = req['user'];
+      let product = await this.ProductModel.findByPk(createSavatDto.productId)
+      if(!product){
+        throw new NotFoundException("Product by id not fount")
+      }
       const data = await this.Model.create({
         ...createSavatDto,
         userId: user.id,
       });
-      return { Message: 'creted', statusCode: 201, data };
+      return { Message: 'creted', statusCode: 201, data:data };
     } catch (error) {
       return catchError(error);
     }
@@ -46,10 +52,13 @@ export class SavatService {
 
   async remove(id: number, req: Request) {
     try {
-      
+      const user = req["user"]
       const data = await this.Model.findByPk(id);
       if (!data) {
         throw new NotFoundException('Not fount by id');
+      }
+      if(data.dataValues.userId !== user.id){
+        throw new ForbiddenException("Siz faqat o'zingizga tegishliy savatni o'chira olasiz")
       }
       return {
         message: 'Deleted',

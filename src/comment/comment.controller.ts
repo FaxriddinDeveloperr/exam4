@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseArrayPipe, ParseIntPipe } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
@@ -23,14 +23,14 @@ export class CommentController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.commentService.findByIdComment(+id);
+  findOne(@Param('id',ParseIntPipe) id: number) {
+    return this.commentService.findByIdComment(id);
   }
 
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.commentService.deleteChat(+id);
+  remove(@Param('id',ParseIntPipe) id: number) {
+    return this.commentService.deleteChat(id);
   }
 }

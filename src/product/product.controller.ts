@@ -28,16 +28,20 @@ export class ProductController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.SELLER)
   @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productService.createProduct(createProductDto);
+  create(@Body() createProductDto: CreateProductDto, @Req() req: Request) {
+    return this.productService.createProduct(createProductDto, req);
   }
 
   @Get()
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
-  @ApiQuery({ name: 'name', required: false})
-  @ApiQuery({ name: 'description', required: false})
-  @ApiQuery({ name: 'sortBy', required: false, enum: ["name","description","count"] })
+  @ApiQuery({ name: 'name', required: false })
+  @ApiQuery({ name: 'description', required: false })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['name', 'description', 'count'],
+  })
   @ApiQuery({ name: 'order', required: true, enum: ['asc', 'desc'] })
   findAll(@Query() query: Record<string, any>) {
     return this.productService.findAllProduct(query);
@@ -50,13 +54,18 @@ export class ProductController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.SELLER)
   @Patch(':id')
-  update(@Param('id',ParseIntPipe) id: number, @Body() updateProductDto: UpdateProductDto, @Req() req:Request) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateProductDto: UpdateProductDto,
+    @Req() req: Request
+  ) {
     return this.productService.updateProduct(id, updateProductDto, req);
   }
 
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.SELLER, Role.ADMIN, Role.SUPER_ADMIN)
   @Delete(':id')
-  remove(@Param('id',ParseIntPipe) id: number, @Req() req: Request) {
-    return this.productService.deletProduct(id,req);
+  remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    return this.productService.deletProduct(id, req);
   }
 }
