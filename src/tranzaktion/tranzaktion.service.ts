@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Tranzaksiya } from './model/tranzaktion.model';
 import { User } from 'src/user/model/user.model';
 import { Orders } from 'src/order/model/order.entity';
+import { Request } from 'express';
 
 @Injectable()
 export class TranzaktionService {
@@ -35,10 +36,10 @@ export class TranzaktionService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, req: Request) {
     try {
-      const data = await this.Model.findByPk(id, {
-        include: [{ model: User }, { model: Orders }],
+      const data = await this.Model.findOne({
+        where: { userId: req['user'].id },
       });
       if (!data) {
         throw new NotFoundException('Not fount tranzaksiya');

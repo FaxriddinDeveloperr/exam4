@@ -64,7 +64,7 @@ export class Product extends Model {
   @BelongsTo(() => Market, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
-    foreignKey: 'market_id' as 'marked',
+    foreignKey: 'market_id', as: 'market',
   })
   market: Market;
 

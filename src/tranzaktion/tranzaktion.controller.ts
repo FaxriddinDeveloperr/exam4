@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  ParseIntPipe,
+  Req,
 } from '@nestjs/common';
 import { TranzaktionService } from './tranzaktion.service';
 import { CreateTranzaktionDto } from './dto/create-tranzaktion.dto';
@@ -14,6 +16,7 @@ import { AuthGuard } from 'src/guard/guard.service';
 import { RoleGuard } from 'src/guard/role.guard';
 import { Roles } from 'src/Decorator/role.decorator';
 import { Role } from 'src/user/dto/register-user.dto';
+import { Request } from 'express';
 
 @Controller('tranzaktion')
 export class TranzaktionController {
@@ -33,13 +36,13 @@ export class TranzaktionController {
   }
   @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tranzaktionService.findOne(+id);
+  findOne(@Param('id',ParseIntPipe) id: number, @Req() req:Request) {
+    return this.tranzaktionService.findOne(id, req);
   }
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tranzaktionService.remove(+id);
+  remove(@Param('id',ParseIntPipe) id: number) {
+    return this.tranzaktionService.remove(id);
   }
 }

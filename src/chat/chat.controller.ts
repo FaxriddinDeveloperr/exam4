@@ -7,10 +7,10 @@ import {
   Param,
   Delete,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
-import { UpdateChatDto } from './dto/update-chat.dto';
 import { AuthGuard } from 'src/guard/guard.service';
 
 @Controller('chat')
@@ -29,13 +29,13 @@ export class ChatController {
   }
   @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.chatService.findByIdChat(+id);
+  findOne(@Param('id',ParseIntPipe) id: number) {
+    return this.chatService.findByIdChat(id);
   }
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.chatService.deleteChat(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.chatService.deleteChat(id);
   }
 }

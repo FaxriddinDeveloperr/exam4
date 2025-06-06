@@ -1,15 +1,10 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateSupportTicketDto } from './dto/create-support_ticket.dto';
-import { UpdateSupportTicketDto } from './dto/update-support_ticket.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { SupportTicket } from './model/support_ticket.model';
-import { NotFoundError } from 'rxjs';
 import { catchError } from 'src/utils/chatchError';
 import { User } from 'src/user/model/user.model';
+import { Request } from 'express';
 
 @Injectable()
 export class SupportTicketService {
@@ -17,10 +12,14 @@ export class SupportTicketService {
     @InjectModel(SupportTicket) private model: typeof SupportTicket
   ) {}
 
-  async createSupportTicket(createSupportTicketDto: CreateSupportTicketDto) {
+  async createSupportTicket(
+    createSupportTicketDto: CreateSupportTicketDto,
+    req: Request
+  ) {
     try {
       const support_ticket = await this.model.create({
         ...createSupportTicketDto,
+        userId: req['user'].id,
       });
       return {
         StatusCode: 201,
@@ -48,11 +47,14 @@ export class SupportTicketService {
     }
   }
 
-  async getTicketById(id: number) {
+  async getTicketById(id: number, req: Request) {
     try {
-      const data = await this.model.findByPk(id, { include: { model: User } });
+      const data = await this.model.findOne({
+        where: { userId: req['user'].id },
+        include: { model: User },
+      });
       if (!data) {
-        throw new NotFoundException(`Ticket by this id:${id} not found`);
+        throw new NotFoundException('Not fount');
       }
       return {
         statusCode: 200,

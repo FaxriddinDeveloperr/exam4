@@ -24,13 +24,24 @@ import { Role } from 'src/user/dto/register-user.dto';
 export class ProductService {
   constructor(
     @InjectModel(Product) private readonly model: typeof Product,
+    @InjectModel(Market) private readonly MarketModel: typeof Market,
+    @InjectModel(Category) private readonly CategoryModel: typeof Category,
     private readonly fileservis: FileService
   ) {}
 
-  async createProduct(createProductDto: CreateProductDto) {
+  async createProduct(createProductDto: CreateProductDto, req: Request) {
     let img = createProductDto.image;
     try {
-      
+      let maeket = await this.MarketModel.findByPk(createProductDto.market_id);
+      let category = await this.CategoryModel.findByPk(
+        createProductDto.category_id
+      );
+      if (!maeket || !category) {
+        throw new NotFoundException('merketId yoki categoryId topilmadi');
+      }
+      if (maeket.dataValues.seller_id != req['user'].id) {
+        throw new ForbiddenException('Bu marketId sizga tegishliy emas!');
+      }
       const product = await this.model.create({ ...createProductDto });
 
       return {
@@ -125,16 +136,16 @@ export class ProductService {
     try {
       const product = await this.model.findOne({
         where: { id: id },
-        include: { model: Market, as: "market", attributes: ['seller_id'] },
+        include: { model: Market, as: 'market', attributes: ['seller_id'] },
       });
       if (!product) {
         throw new NotFoundException(
           `Product with id ${id} not found for update`
         );
       }
-      
-      if (product.market.seller_id != seller.id) {
-        throw new ForbiddenException();
+
+      if (product.dataValues.market.dataValues.seller_id != seller.id) {
+        throw new ForbiddenException('Bu produkt sizga tegishliy emas');
       }
 
       const [_, updatedProduct] = await this.model.update(updateProductDto, {
@@ -161,27 +172,23 @@ export class ProductService {
   async deletProduct(id: number, req: Request) {
     try {
       let user = req['user'];
-      const product = await this.model.findOne({
-        where: { id: id },
-        include: { model: Market, attributes: ['seller_id'] },
-      });
+      const product = await this.model.findByPk(id);
       if (!product) {
-        throw new NotFoundException(
-          `Product with id ${id} not found for update`
-        );
+        throw new NotFoundException("Product by id not fount");
+      }  
+      const market = await this.MarketModel.findByPk(product.dataValues.market_id)
+      if(!market){
+        throw new NotFoundException("Market not fount")
       }
       if (
-        product['Market'].seller_id != user.id ||
-        user.role != Role.SUPER_ADMIN ||
-        user.role != Role.ADMIN
+        market.dataValues.seller_id !== user.id &&
+        user.role !== Role.SUPER_ADMIN &&
+        user.role !== Role.ADMIN
       ) {
         throw new ForbiddenException();
       }
+      await this.model.destroy({ where: { id } });
 
-      const deletedCount = await this.model.destroy({ where: { id } });
-      if (!deletedCount) {
-        throw new NotFoundException();
-      }
       if (await this.fileservis.existFile(product.dataValues.image)) {
         await this.fileservis.deleteFile(product.dataValues.image);
       }

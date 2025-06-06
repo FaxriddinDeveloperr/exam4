@@ -34,7 +34,8 @@ export class SavatController {
   findAll(@Req() req: Request) {
     return this.savatService.findAll(req);
   }
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard,RoleGuard)
+  @Roles(Role.BUYDET)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
     return this.savatService.remove(id, req);

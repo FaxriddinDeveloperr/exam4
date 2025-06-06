@@ -160,14 +160,14 @@ export class AdminService {
       if (!data) {
         throw new NotFoundException('Not fount user by id');
       }
-      if (users.role === Role.SUPER_ADMIN && users.id !== data.dataValues.id) {
+      if (users.role == Role.SUPER_ADMIN && users.id != data.dataValues.id) {
         await this.Model.destroy({ where: { id } });
         return { Message: 'Deleted', data: {} };
       } else if (
-        users.role === Role.ADMIN &&
-        data.dataValues.id !== users.id &&
-        data.dataValues.role !== Role.SUPER_ADMIN &&
-        data.dataValues.role !== Role.ADMIN
+        users.role == Role.ADMIN &&
+        data.dataValues.id != users.id &&
+        data.dataValues.role != Role.SUPER_ADMIN &&
+        data.dataValues.role != Role.ADMIN
       ) {
         await this.Model.destroy({ where: { id } });
         return { Message: 'Deleted', data: {} };

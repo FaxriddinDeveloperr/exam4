@@ -7,11 +7,7 @@ export enum Status {
     FINISH = "finish"
 }
 export class CreateOrderDto {
-    @ApiProperty({example: 1})
-    @IsNotEmpty()
-    @IsNumber()
-    userId: number
-
+    
     @ApiProperty({example: "Toshkent"})
     @IsNotEmpty()
     @IsString()

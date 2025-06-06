@@ -48,7 +48,7 @@ export class RatingService {
 
   async getRatingById(id: number) {
     try {
-      const ratingById = await this.model.findByPk(+id, {
+      const ratingById = await this.model.findByPk(id, {
         include: [{ model: User }, { model: Product }],
       });
       if (!ratingById) {

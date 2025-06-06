@@ -17,6 +17,7 @@ import { MailService } from 'src/mail/mail.service';
 import { Market } from 'src/market/model/market.model';
 import { catchError } from 'rxjs';
 import { Tranzaksiya } from 'src/tranzaktion/model/tranzaktion.model';
+import { Request } from 'express';
 
 @Injectable()
 export class OrderService {
@@ -32,15 +33,16 @@ export class OrderService {
     private readonly mail: MailService
   ) {}
 
-  async create(data: CreateOrderDto) {
+  async create(data: CreateOrderDto, req: Request) {
     const T = await this.sequolizs.transaction();
+    const userId = req['user'].id;
     try {
       const SavatItem = await this.SavatModel.findAll({
-        where: { userId: data.userId },
+        where: { userId: userId },
         transaction: T,
       });
 
-      if (!SavatItem || SavatItem.length === 0) {
+      if (SavatItem.length == 0) {
         throw new NotFoundException("Sizning savatingiz bo'sh");
       }
 
@@ -71,13 +73,14 @@ export class OrderService {
       }
       const order = await this.OrderModel.create(
         {
-          userId: data.userId,
+          userId: userId,
           addres: data.addres,
           status: Status.PENDING,
         },
         { transaction: T }
       );
-      let marked_id = 0;
+      const markedId = new Set<number>();
+
       for (const N of SavatItem) {
         const productId = N.dataValues.productId;
         const product = await this.ProductModel.findByPk(productId);
@@ -85,7 +88,7 @@ export class OrderService {
         const savatCount = N.dataValues.count;
         const productCount = product!.dataValues.count;
 
-        marked_id = product?.dataValues.market_id;
+        markedId.add(product?.dataValues.market_id);
         await this.Order_ItemModel.create(
           {
             orderId: order.dataValues.id,
@@ -103,35 +106,36 @@ export class OrderService {
       }
 
       await this.SavatModel.destroy({
-        where: { userId: data.userId },
+        where: { userId: userId },
         transaction: T,
       });
 
       await T.commit();
 
-      const user = await this.UserModel.findByPk(data.userId);
+      const user = await this.UserModel.findByPk(userId);
 
       this.mail.sendMail(
         user?.dataValues.email,
         `Hurmatliy ${user?.dataValues.name}`,
         `<h2> Sizning buyurtmangiz muvaffaqiyatli qabul qilindi </h2>`
       );
-
-      const SellerEmail = await this.MarkedModel.findByPk(marked_id, {
-        include: [
-          {
-            model: this.UserModel,
-            as: 'seller_Id',
-            attributes: ['email', 'name'],
-          },
-        ],
-      });
-      if (SellerEmail) {
-        this.mail.sendMail(
-          SellerEmail.dataValues.email,
-          `Hurmatli ${SellerEmail.dataValues.name},`,
-          `<h2> Sizning do'koningiz uchun yangi buyurtma qabul qilindi.</h2>`
-        );
+      for (const id of markedId) {
+        let SellerEmail = await this.MarkedModel.findByPk(id, {
+          include: [
+            {
+              model: this.UserModel,
+              as: 'seller_Id',
+              attributes: ['email', 'name'],
+            },
+          ],
+        });
+        if (SellerEmail) {
+          this.mail.sendMail(
+            SellerEmail.dataValues.email,
+            `Hurmatli ${SellerEmail.dataValues.name},`,
+            `<h2> Sizning do'koningiz uchun yangi buyurtma qabul qilindi.</h2>`
+          );
+        }
       }
 
       return { message: 'Order created', orderId: order.dataValues.id };
@@ -141,33 +145,33 @@ export class OrderService {
     }
   }
 
-  async findAll() {
+  async findAll(req: Request) {
     try {
       const data = await this.OrderModel.findAll({
+        where: { userId: req['user'].id },
         include: [
           { model: User },
           { model: Order_Item },
           { model: Tranzaksiya },
         ],
       });
-      if (!data.length) {
-        throw new NotFoundException('Not fount order');
-      }
-      return { statusCode: 200, data: data };
+      if (data) return { statusCode: 200, data: data };
     } catch (error) {
       return catchError(error);
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, req: Request) {
     try {
-      const data = await this.OrderModel.findByPk(id, {
+      const data = await this.OrderModel.findOne({
+        where: { userId: req['user'].id },
         include: [
           { model: User },
           { model: Order_Item },
           { model: Tranzaksiya },
         ],
       });
+
       if (!data) {
         throw new NotFoundException('Not fount by id');
       }
