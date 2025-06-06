@@ -198,7 +198,7 @@ export class ProductService {
         data: { id },
       };
     } catch (error) {
-      return catchError(error);
+      throw catchError(error);
     }
   }
 }
