@@ -26,7 +26,7 @@ export class Market extends Model {
   seller_id: number;
 
   @BelongsTo(() => User, {
-    foreignKey: 'seller_id',
+    foreignKey: 'seller_id', as: "seller_Id",
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })

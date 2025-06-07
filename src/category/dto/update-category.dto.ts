@@ -7,7 +7,7 @@ export class UpdateCategoryDto {
   @IsOptional()
   name: string;
 
-  @ApiProperty({ example: 'Link' })
+  @ApiProperty({ example: '' })
   @IsString()
   @IsOptional()
   icon: string;

@@ -8,10 +8,12 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
+  Req,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { AuthGuard } from 'src/guard/guard.service';
+import { Request } from 'express';
 
 @Controller('chat')
 export class ChatController {
@@ -19,8 +21,8 @@ export class ChatController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createChatDto: CreateChatDto) {
-    return this.chatService.createChat(createChatDto);
+  create(@Body() createChatDto: CreateChatDto, @Req() req:Request) {
+    return this.chatService.createChat(createChatDto, req);
   }
   @UseGuards(AuthGuard)
   @Get()

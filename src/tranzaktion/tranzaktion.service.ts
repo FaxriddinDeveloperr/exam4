@@ -13,9 +13,12 @@ export class TranzaktionService {
     @InjectModel(Tranzaksiya) private readonly Model: typeof Tranzaksiya
   ) {}
 
-  async create(createTranzaktionDto: CreateTranzaktionDto) {
+  async create(createTranzaktionDto: CreateTranzaktionDto, req: Request) {
     try {
-      const T = await this.Model.create({ ...createTranzaktionDto });
+      const T = await this.Model.create({
+        ...createTranzaktionDto,
+        userId: req['user'].id,
+      });
       return { statusCode: 201, message: 'Creted', data: T };
     } catch (error) {
       return catchError(error);

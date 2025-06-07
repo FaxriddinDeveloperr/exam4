@@ -24,12 +24,12 @@ export class TranzaktionController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createTranzaktionDto: CreateTranzaktionDto) {
-    return this.tranzaktionService.create(createTranzaktionDto);
+  create(@Body() createTranzaktionDto: CreateTranzaktionDto, @Req() req:Request) {
+    return this.tranzaktionService.create(createTranzaktionDto, req);
   }
 
   @UseGuards(AuthGuard, RoleGuard)
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.BUYDET)
   @Get()
   findAll() {
     return this.tranzaktionService.findAll();

@@ -20,9 +20,4 @@ export class CreateChatDto {
     @IsNotEmpty()
     product_id: number
 
-
-    @ApiProperty({example: 4})
-    @IsNumber()
-    @IsNotEmpty()
-    sender_id: number
 }

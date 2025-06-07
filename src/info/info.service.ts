@@ -11,7 +11,6 @@ import { Chat } from 'src/chat/model/chat.entity';
 import { Comment } from 'src/comment/model/comment.model';
 import { Market } from 'src/market/model/market.model';
 import { Orders } from 'src/order/model/order.entity';
-import { Order_Item } from 'src/order_items/model/order_item.model';
 import { Product } from 'src/product/model/product.entity';
 import { Rating } from 'src/rating/model/rating.model';
 import { Savat } from 'src/savat/model/savat.model';

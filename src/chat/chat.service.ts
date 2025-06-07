@@ -10,14 +10,29 @@ import { Chat } from './model/chat.entity';
 import { catchError } from 'src/utils/chatchError';
 import { User } from 'src/user/model/user.model';
 import { Product } from 'src/product/model/product.entity';
+import { Request } from 'express';
 
 @Injectable()
 export class ChatService {
-  constructor(@InjectModel(Chat) private chatModel: typeof Chat) {}
+  constructor(
+    @InjectModel(Chat) private readonly chatModel: typeof Chat,
+    @InjectModel(User) private readonly UserModel: typeof User,
+    @InjectModel(Product) private readonly ProductModel: typeof Product
+  ) {}
 
-  async createChat(createChatDto: CreateChatDto) {
+  async createChat(createChatDto: CreateChatDto, req: Request) {
     try {
-      const chat = await this.chatModel.create({ ...createChatDto });
+      let product = await this.ProductModel.findByPk(createChatDto.product_id);
+      let Users = await this.UserModel.findByPk(createChatDto.receiver_id);
+      if (!product || !Users) {
+        throw new NotFoundException('Product_Id yoki User_Id topilmadi');
+      }
+      let user = req['user'];
+
+      const chat = await this.chatModel.create({
+        ...createChatDto,
+        sender_id: user.id,
+      });
       return {
         statusCode: 201,
         message: 'Chat successfully created',
@@ -31,7 +46,11 @@ export class ChatService {
   async findAllChat() {
     try {
       const data = await this.chatModel.findAll({
-        include: [{ model: User }, { model: Product }],
+        include: [
+          { model: User, as: 'sender' },
+          { model: User, as: 'revers' },
+          { model: Product },
+        ],
       });
 
       if (!data.length) {
@@ -51,7 +70,11 @@ export class ChatService {
   async findByIdChat(id: number) {
     try {
       const chat = await this.chatModel.findByPk(id, {
-        include: [{ model: User }, { model: Product }],
+        include: [
+          { model: User, as: 'sender' },
+          { model: User, as: 'revers' },
+          { model: Product },
+        ],
       });
 
       if (!chat) {

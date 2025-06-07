@@ -3,12 +3,12 @@ import { IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateSupportTicketDto {
 
-    @ApiProperty({ example: 'Matematika' })
+    @ApiProperty({ example: 'Product haqida' })
     @IsString()
     @IsOptional()
     subjectName: string
 
-    @ApiProperty({ example: 'Menga jusaham yoqdi!!!' })
+    @ApiProperty({ example: 'Menga judaham yoqdi!' })
     @IsString()
     @IsOptional()
     message: string

@@ -9,7 +9,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Notification } from './model/notification.model';
 import { User } from 'src/user/model/user.model';
 import { MailService } from 'src/mail/mail.service';
-import { catchError } from 'rxjs';
+import { catchError } from 'src/utils/chatchError';
 
 @Injectable()
 export class NotificationService {
@@ -46,27 +46,10 @@ export class NotificationService {
 
   async findAll() {
     try {
-      const data = await this.NotifikationModel.findAll({
-        include: { model: User },
-      });
-      if (!data.length) {
-        throw new NotFoundException();
-      }
-      return { statusCode: 200, data };
-    } catch (error) {
-      return catchError(error);
-    }
-  }
+      const data = await this.NotifikationModel.findAll({include:{model: User}});
 
-  async findOne(id: number) {
-    try {
-      const data = await this.NotifikationModel.findByPk(id, {
-        include: { model: User },
-      });
-      if (!data) {
-        throw new NotFoundException();
-      }
-      return { statusCode: 200, data };
+      return { statusCode: 200, data:data };
+
     } catch (error) {
       return catchError(error);
     }
@@ -76,7 +59,7 @@ export class NotificationService {
     try {
       const data = await this.NotifikationModel.findByPk(id);
       if (!data) {
-        throw new NotFoundException();
+        throw new NotFoundException("Not fount by id");
       }
       await this.NotifikationModel.destroy({ where: { id: id } });
       return { statusCode: 200, message: 'Deleted' };

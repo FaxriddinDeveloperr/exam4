@@ -40,4 +40,11 @@ export class OrderItemsService {
       return catchError(error);
     }
   }
+  async findByid(id: number) {
+    let Item = await this.Model.findByPk(id, {include:[{model:Product},{model:Orders}]});
+    if (!Item) {
+      throw new NotFoundException('Order_Iten by id not fount');
+    }
+    return { statusCode: 200, data: Item };
+  }
 }

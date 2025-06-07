@@ -16,7 +16,7 @@ export class FileService {
         return false;
       }
     } catch (error) {
-      return catchError(error);
+      throw  catchError(error);
     }
   }
 
