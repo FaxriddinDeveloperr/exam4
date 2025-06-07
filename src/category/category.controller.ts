@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -18,6 +19,7 @@ import { AuthGuard } from 'src/guard/guard.service';
 import { RoleGuard } from 'src/guard/role.guard';
 import { Roles } from 'src/Decorator/role.decorator';
 import { Role } from 'src/user/dto/register-user.dto';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('category')
 export class CategoryController {
@@ -30,9 +32,14 @@ export class CategoryController {
     return this.categoryService.createCategory(createCategoryDto);
   }
 
+  @ApiQuery({ name: 'page', required: false, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, example: 10 })
+  @ApiQuery({ name: 'name', required: false })
+  @ApiQuery({ name: 'sortBy', required: false, example: 'name' })
+  @ApiQuery({ name: 'order', required: true, enum: ['asc', 'desc'] })
   @Get()
-  findAll() {
-    return this.categoryService.getAllCategories();
+  findAll(@Query() query: Record<string, any>) {
+    return this.categoryService.getAllCategories(query);
   }
 
   @Get(':id')

@@ -1,21 +1,19 @@
-import {
-  HttpException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import { UpdateCommentDto } from './dto/update-comment.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Comment } from './model/comment.model';
 import { catchError } from 'src/utils/chatchError';
+import { Request } from 'express';
 
 @Injectable()
 export class CommentService {
   constructor(@InjectModel(Comment) private Model: typeof Comment) {}
-  async createComment(createCommentDto: CreateCommentDto) {
+  async createComment(createCommentDto: CreateCommentDto, req: Request) {
     try {
-      const comment = await this.Model.create({ ...createCommentDto });
+      const comment = await this.Model.create({
+        ...createCommentDto,
+        userId: req['user'].id,
+      });
       return {
         statusCode: 201,
         message: 'success',
@@ -77,7 +75,7 @@ export class CommentService {
         data: {},
       };
     } catch (error) {
-      return catchError(error)
+      return catchError(error);
     }
   }
 }

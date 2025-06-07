@@ -21,7 +21,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Online Marketpleys')
     .setDescription('The cats API description')
-    .setVersion('1.1')
+    .setVersion('2.1')
     .addSecurityRequirements('bearer', ['bearer'])
     .addBearerAuth()
     .build();

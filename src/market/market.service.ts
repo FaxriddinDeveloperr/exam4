@@ -10,11 +10,11 @@ import { UpdateMarketDto } from './dto/update-market.dto';
 import { Market } from './model/market.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { catchError } from 'src/utils/chatchError';
-import { error } from 'console';
 import { User } from 'src/user/model/user.model';
 import { Product } from 'src/product/model/product.entity';
 import { Request } from 'express';
 import { Role } from 'src/user/dto/register-user.dto';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class MarketService {
@@ -44,12 +44,29 @@ export class MarketService {
     }
   }
 
-  async findAllMarket(req: Request) {
+  async findAllMarket(req: Request, query: Record<string, any>) {
     try {
+      let { limit, page, sortBy, order, name, description } = query;
+      page = parseInt(page) || 1;
+      limit = parseInt(limit) || 10;
+      let offset = (page - 1) * limit;
+      let sortColum = sortBy || 'name';
+      let sortOrder = order == 'asc' ? 'ASC' : 'DESC';
+      let where: any = {};
+      if (name) {
+        where.name = { [Op.iLike]: `%${name}%` };
+      }
+      if (description) {
+        where.description = { [Op.iLike]: `%${description}%` };
+      }
       let user = req['user'];
       if (user.role == Role.SELLER) {
-        const data = await this.model.findAll({
-          where: { seller_id: user.id },
+        where.seller_id = user.id;
+        const { count: total, rows: data } = await this.model.findAndCountAll({
+          where,
+          order: [[sortColum, sortOrder]],
+          limit,
+          offset,
           include: [{ model: User }, { model: Product }],
         });
         if (!data.length) {
@@ -57,19 +74,28 @@ export class MarketService {
         }
         return {
           statusCode: 200,
-          message: 'All markets found',
+          total,
+          page,
+          limit,
           data: data,
         };
       } else {
-        const data = await this.model.findAll({
+        const { count: total, rows: data } = await this.model.findAndCountAll({
+          where,
+          order:[[sortColum, sortOrder]],
+          limit,
+          offset,
           include: [{ model: Product }],
         });
+
         if (!data.length) {
-          throw new NotFoundException();
+          throw new NotFoundException('Not found market ');
         }
         return {
           statusCode: 200,
-          message: 'All markets found',
+          total,
+          page,
+          limit,
           data: data,
         };
       }

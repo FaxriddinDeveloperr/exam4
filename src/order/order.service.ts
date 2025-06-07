@@ -15,9 +15,10 @@ import { Sequelize } from 'sequelize-typescript';
 import { User } from 'src/user/model/user.model';
 import { MailService } from 'src/mail/mail.service';
 import { Market } from 'src/market/model/market.model';
-import { catchError } from 'rxjs';
+import { catchError } from 'src/utils/chatchError';
 import { Tranzaksiya } from 'src/tranzaktion/model/tranzaktion.model';
 import { Request } from 'express';
+import { Transaction } from 'sequelize';
 
 @Injectable()
 export class OrderService {
@@ -66,6 +67,10 @@ export class OrderService {
         }
 
         if (TotalCount > product.dataValues.count) {
+          await this.SavatModel.destroy({
+            where: { userId: userId },
+            transaction: T
+          });
           throw new BadRequestException(
             `Mahsulot yetarli emas: ${product.dataValues.name} — bor: ${product.dataValues.count}`
           );
@@ -79,16 +84,12 @@ export class OrderService {
         },
         { transaction: T }
       );
-      const markedId = new Set<number>();
-
       for (const N of SavatItem) {
         const productId = N.dataValues.productId;
         const product = await this.ProductModel.findByPk(productId);
 
         const savatCount = N.dataValues.count;
         const productCount = product!.dataValues.count;
-
-        markedId.add(product?.dataValues.market_id);
         await this.Order_ItemModel.create(
           {
             orderId: order.dataValues.id,
@@ -119,28 +120,14 @@ export class OrderService {
         `Hurmatliy ${user?.dataValues.name}`,
         `<h2> Sizning buyurtmangiz muvaffaqiyatli qabul qilindi </h2>`
       );
-      for (const id of markedId) {
-        let SellerEmail = await this.MarkedModel.findByPk(id, {
-          include: [
-            {
-              model: this.UserModel,
-              as: 'seller_Id',
-              attributes: ['email', 'name'],
-            },
-          ],
-        });
-        if (SellerEmail) {
-          this.mail.sendMail(
-            SellerEmail.dataValues.email,
-            `Hurmatli ${SellerEmail.dataValues.name},`,
-            `<h2> Sizning do'koningiz uchun yangi buyurtma qabul qilindi.</h2>`
-          );
-        }
-      }
-
       return { message: 'Order created', orderId: order.dataValues.id };
     } catch (error) {
-      await T.rollback();
+      try {
+        await T.rollback();
+      } catch (rollbackError) {
+        return { rollbackError };
+      }
+
       return catchError(error);
     }
   }

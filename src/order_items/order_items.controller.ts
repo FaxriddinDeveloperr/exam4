@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   Req,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { OrderItemsService } from './order_items.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -26,5 +27,9 @@ export class OrderItemsController {
   @ApiQuery({ name: 'limit', required: false, example: 10 })
   findAll(@Query() query: Record<string, any>, @Req() req:Request) {
     return this.orderItemsService.findAll(query, req);
+  }
+  @Get(":id")
+  findByid(@Param("id", ParseIntPipe) id: number){
+    return this.orderItemsService.findByid(id)
   }
 }

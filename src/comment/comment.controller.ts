@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseArrayPipe, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseArrayPipe, ParseIntPipe, Req } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import { UpdateCommentDto } from './dto/update-comment.dto';
 import { AuthGuard } from 'src/guard/guard.service';
 import { RoleGuard } from 'src/guard/role.guard';
 import { Roles } from 'src/Decorator/role.decorator';
 import { Role } from 'src/user/dto/register-user.dto';
+import { Request } from 'express';
 
 @Controller('comment')
 export class CommentController {
@@ -13,8 +13,8 @@ export class CommentController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createCommentDto: CreateCommentDto) {
-    return this.commentService.createComment(createCommentDto);
+  create(@Body() createCommentDto: CreateCommentDto, @Req() req:Request) {
+    return this.commentService.createComment(createCommentDto, req);
   }
 
   @Get()

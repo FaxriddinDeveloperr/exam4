@@ -20,9 +20,4 @@ export class CreateTranzaktionDto {
   @IsNumber()
   @IsNotEmpty()
   orderId: number
-
-  @ApiProperty({example: 3})
-  @IsNumber()
-  @IsNotEmpty()
-  userId: number
 }

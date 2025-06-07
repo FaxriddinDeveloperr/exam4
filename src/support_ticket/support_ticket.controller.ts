@@ -35,7 +35,8 @@ export class SupportTicketController {
   findAll() {
     return this.supportTicketService.getAllTickets();
   }
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number, @Req() req:Request) {
     return this.supportTicketService.getTicketById(id, req);

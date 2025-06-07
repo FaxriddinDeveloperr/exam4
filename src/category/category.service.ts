@@ -1,17 +1,15 @@
 import {
   ConflictException,
-  HttpException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Category } from './model/category.model';
 import { catchError } from 'src/utils/chatchError';
 import { Product } from 'src/product/model/product.entity';
 import { FileService } from 'src/file/file.service';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class CategoryService {
@@ -45,15 +43,32 @@ export class CategoryService {
     }
   }
 
-  async getAllCategories() {
+  async getAllCategories(query: Record<string, any>) {
     try {
-      const data = await this.model.findAll({ include: { model: Product } });
-      if (!data.length) {
-        throw new NotFoundException('Categories not found');
+      let { limit, page, sortBy, order, name } = query;
+      page = parseInt(page) || 1;
+      limit = parseInt(limit) || 10;
+      let offset = (page - 1) * limit;
+      let sortColumn = sortBy || 'name';
+      let sortOrder = order == 'asc' ? 'ASC' : 'DESC';
+      let where: any = {};
+      if (name) {
+        where.name = { [Op.iLike]: `%${name}%` };
       }
+
+      const { count: total, rows: data } = await this.model.findAndCountAll({
+        where,
+        order: [[sortColumn, sortOrder]],
+        limit,
+        offset,
+        include: { model: Product },
+      });
+
       return {
         satusCode: 200,
-        message: 'success',
+        total,
+        page,
+        limit,
         data: data,
       };
     } catch (error) {

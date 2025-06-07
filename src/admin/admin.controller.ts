@@ -36,7 +36,7 @@ export class AdminController {
   }
 
   @UseGuards(RoleGuard)
-  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  @Roles(Role.SUPER_ADMIN)
   @UseGuards(AuthGuard)
   @Get('all')
   @ApiQuery({ name: 'page', required: false, example: 1 })

@@ -1,10 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
-  HttpException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -72,11 +69,11 @@ export class UserService {
         throw new NotFoundException('User Not fount');
       }
 
-      if (!data.dataValues.IsActive) {
-        throw new UnauthorizedException(
-          'Siz login qilishdan oldin akkauntingizni follashtiring'
-        );
-      }
+      // if (!data.dataValues.IsActive) {
+      //   throw new UnauthorizedException(
+      //     'Siz login qilishdan oldin akkauntingizni follashtiring'
+      //   );
+      // }
       if (
         !bcrypt.compareSync(loginUserdto.password, data.dataValues.password)
       ) {
@@ -206,13 +203,13 @@ export class UserService {
   AccesToken(peloud: { id: string; role: string }) {
     return this.JWT.sign(peloud, {
       secret: process.env.ACCS_SECRET,
-      expiresIn: '1h',
+      expiresIn: '2h',
     });
   }
   RefreshToken(peloud: { id: string; role: string }) {
     return this.JWT.sign(peloud, {
       secret: process.env.REFRESH_SECRET,
-      expiresIn: '7h',
+      expiresIn: '7d',
     });
   }
 
