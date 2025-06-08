@@ -69,11 +69,11 @@ export class UserService {
         throw new NotFoundException('User Not fount');
       }
 
-      // if (!data.dataValues.IsActive) {
-      //   throw new UnauthorizedException(
-      //     'Siz login qilishdan oldin akkauntingizni follashtiring'
-      //   );
-      // }
+      if (!data.dataValues.IsActive) {
+        throw new UnauthorizedException(
+          'Siz login qilishdan oldin akkauntingizni follashtiring'
+        );
+      }
       if (
         !bcrypt.compareSync(loginUserdto.password, data.dataValues.password)
       ) {
