@@ -24,6 +24,7 @@ export class ChatController {
   create(@Body() createChatDto: CreateChatDto, @Req() req:Request) {
     return this.chatService.createChat(createChatDto, req);
   }
+  
   @UseGuards(AuthGuard)
   @Get()
   findAll() {

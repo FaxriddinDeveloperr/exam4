@@ -9,6 +9,7 @@ import { Product } from 'src/product/model/product.entity';
 @Module({
   imports: [SequelizeModule.forFeature([Chat, User,Product])],
   controllers: [ChatController],
+  
   providers: [ChatService],
 })
 export class ChatModule {}
