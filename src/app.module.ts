@@ -100,7 +100,7 @@ import { FileModule } from './file/file.module';
     InfoModule,
 
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, "..","..","/uploads"),
+      rootPath: join(__dirname,"../../uploads"),
       serveRoot: "/file"
     }),
 

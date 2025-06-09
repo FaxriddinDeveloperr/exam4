@@ -1,8 +1,6 @@
 import {
   BadRequestException,
-  HttpException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateOrderDto, Status, StatusDto } from './dto/create-order.dto';
@@ -69,7 +67,7 @@ export class OrderService {
         if (TotalCount > product.dataValues.count) {
           await this.SavatModel.destroy({
             where: { userId: userId },
-            transaction: T
+            transaction: T,
           });
           throw new BadRequestException(
             `Mahsulot yetarli emas: ${product.dataValues.name} — bor: ${product.dataValues.count}`
@@ -87,20 +85,22 @@ export class OrderService {
       for (const N of SavatItem) {
         const productId = N.dataValues.productId;
         const product = await this.ProductModel.findByPk(productId);
-
+        if (!product) {
+          throw new NotFoundException('product not fount by id');
+        }
         const savatCount = N.dataValues.count;
-        const productCount = product!.dataValues.count;
+        const productCount = product.dataValues.count;
         await this.Order_ItemModel.create(
           {
             orderId: order.dataValues.id,
             productId,
             count: savatCount,
-            price_at_order: product!.dataValues.price,
+            price_at_order: product.dataValues.price,
           },
           { transaction: T }
         );
 
-        await product!.update(
+        await product.update(
           { count: productCount - savatCount },
           { transaction: T }
         );
