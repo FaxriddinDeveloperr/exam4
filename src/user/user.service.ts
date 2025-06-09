@@ -97,32 +97,34 @@ export class UserService {
 
   async update(updateUserdto: UpdateUserdto, id: number, req: Request) {
     try {
-      const users = req['user'];
+      const users = req["user"];
       const data = await this.Model.findByPk(id);
+  
       if (!data) {
-        throw new NotFoundException('Not fount user by id');
+        throw new NotFoundException('Not found user by id');
       }
-
-      if (
-        data.dataValues.id !== users.id &&
-        users.dataValues.role !== Role.SUPER_ADMIN
-      ) {
+  
+      if (data.dataValues.id !== users.id && users.role !== Role.SUPER_ADMIN) {
         throw new UnauthorizedException(
           "Malumotlarni o'zgartirishga huquqingiz yetarliy emas"
         );
       }
+  
+      const [_, updatedData] = await this.Model.update(updateUserdto, {
+        where: { id },
+        returning: true,
+      });
+  
       return {
         statuscode: 201,
         Message: 'Update',
-        data: await this.Model.update(updateUserdto, {
-          where: { id },
-          returning: true,
-        }),
+        data: updatedData[0],
       };
     } catch (error) {
       return catchError(error);
     }
   }
+  
   async reset_password(data: ResetPasswordDto) {
     try {
       const user = await this.Model.findOne({ where: { email: data.email } });

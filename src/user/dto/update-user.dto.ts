@@ -17,4 +17,5 @@ export class UpdateUserdto {
   @IsEmail()
   @IsOptional()
   email: string;
+
 }
