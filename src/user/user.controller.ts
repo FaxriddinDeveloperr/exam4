@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserdto, Role } from './dto/register-user.dto';
@@ -19,9 +20,10 @@ import { RoleGuard } from 'src/guard/role.guard';
 import { Roles } from 'src/Decorator/role.decorator';
 import { UpdateUserdto } from './dto/update-user.dto';
 import { RefreshGuard } from 'src/guard/Refresh_guard.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { EmailPassword } from './dto/Email_reset_password';
 
-@ApiTags("Auth")
+@ApiTags('Auth')
 @Controller('Auth')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -36,48 +38,30 @@ export class UserController {
     return this.userService.login(loginUserdto);
   }
 
-  @UseGuards(RoleGuard)
-  @Roles(Role.ADMIN,Role.SUPER_ADMIN)
-  @UseGuards(AuthGuard)
-  @Get("all")
-  findAll(){
-    return this.userService.findAll()
-  }
 
   @UseGuards(RefreshGuard)
-  @Get("refreshToket")
-  refreshToken(@Req() req: Request){
-    return this.userService.refreshToken(req)
+  @Get('refreshToket')
+  refreshToken(@Req() req: Request) {
+    return this.userService.refreshToken(req);
   }
 
-  @UseGuards(AuthGuard)
-  @Get(':id')
-  finfOne(@Param('id') id: string, @Req() req: Request) {
-    return this.userService.findOne(+id, req);
+  @Post('password')
+  new_password(@Body() data: EmailPassword) {
+    return this.userService.new_password(data);
   }
 
-
-
-  // @UseGuards(AuthGuard)
-  // @Delete('delet_accaunt/:id')
-  // delet_accaunt(@Param('id') id: string, @Req() req: Request) {
-  //   return this.userService.delet_accaunt(+id, req);
-  // }
-
-
-
-  @UseGuards(AuthGuard)
   @Post('reset_password')
-  reset_password(@Body() data: ResetPasswordDto, @Req() req: Request) {
-    
-    return this.userService.reset_password(data, req);
+  reset_password(@Body() data: ResetPasswordDto) {
+    return this.userService.reset_password(data);
   }
-
 
   @UseGuards(AuthGuard)
-  @Patch("Update/:id")
-  update(@Body() data: UpdateUserdto, @Param("id") id: string, @Req() req:Request){
-    return this.userService.update(data, +id, req)
+  @Patch('Update/:id')
+  update(
+    @Body() data: UpdateUserdto,
+    @Param('id') id: string,
+    @Req() req: Request
+  ) {
+    return this.userService.update(data, +id, req);
   }
-
 }

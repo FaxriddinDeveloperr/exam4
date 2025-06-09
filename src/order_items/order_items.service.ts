@@ -1,22 +1,50 @@
-import { HttpException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Order_Item } from './model/order_item.model';
+import { Orders } from 'src/order/model/order.entity';
+import { Product } from 'src/product/model/product.entity';
+import { Request } from 'express';
+import { catchError } from 'src/utils/chatchError';
 
 @Injectable()
 export class OrderItemsService {
-  constructor(@InjectModel(Order_Item) private readonly Model: typeof Order_Item){}
+  constructor(
+    @InjectModel(Order_Item) private readonly Model: typeof Order_Item
+  ) {}
 
- async findAll() {
+  async findAll(query: Record<string, any>, req: Request) {
     try {
-      const data = await this.Model.findAll()
-      if(!data.length){
-        throw new NotFoundException
-      }
-      return {status: 200,  data}
+      let { page, limit } = query;
+      page = parseInt(page) || 1;
+      limit = parseInt(limit) || 10;
+      const offset = (page - 1) * limit;
+
+      const { count: total, rows: data } = await this.Model.findAndCountAll({
+        limit,
+        offset,
+        include: [{ model: Product }, { model: Orders }],
+      });
+      return {
+        statuscode: 200,
+        total,
+        page,
+        limit,
+        data,
+      };
     } catch (error) {
-       if(error instanceof HttpException) throw error
-      throw new InternalServerErrorException(error.message)
+      return catchError(error);
     }
   }
-
+  async findByid(id: number) {
+    let Item = await this.Model.findByPk(id, {include:[{model:Product},{model:Orders}]});
+    if (!Item) {
+      throw new NotFoundException('Order_Iten by id not fount');
+    }
+    return { statusCode: 200, data: Item };
+  }
 }

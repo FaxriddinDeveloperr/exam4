@@ -16,11 +16,6 @@ export class UpdateMarketDto {
   @ApiProperty({ example: 1 })
   @IsNumber()
   @IsOptional()
-  seller_id: number;
-
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  @IsOptional()
   general_reyting: number;
 
   @ApiProperty({ example: 'description' })

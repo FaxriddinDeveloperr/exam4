@@ -1,11 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
-  HttpException,
-  HttpStatus,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -16,19 +12,19 @@ import { LoginUserdto } from './dto/login-user.dto';
 import { UpdateUserdto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { tracingChannel } from 'diagnostics_channel';
 import { ResetPasswordDto } from './dto/reset_password-user.dto';
 import { Request } from 'express';
 import { MailService } from 'src/mail/mail.service';
-import { totp, authenticator } from 'otplib';
+import { totp } from 'otplib';
+import { EmailPassword } from './dto/Email_reset_password';
+import { catchError } from 'src/utils/chatchError';
 
-authenticator.options = {window: 10}
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User) private readonly Model: typeof User,
     private readonly JWT: JwtService,
-    private main: MailService,
+    private main: MailService
   ) {}
 
   async register(registerUserdto: RegisterUserdto) {
@@ -42,17 +38,25 @@ export class UserService {
       let hash = bcrypt.hashSync(registerUserdto.password, 10);
       registerUserdto.password = hash;
 
-      const newUser = await this.Model.create({ ...registerUserdto });
+      await this.Model.create({ ...registerUserdto });
 
-      const otp = totp.generate(String(registerUserdto.email))
+      const otp = totp.generate(String(registerUserdto.email));
 
-      await this.main.sendMail(registerUserdto.email,`Sizning otp kokingiz: ${otp} `," Iltimos, ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning." )
+      await this.main.sendMail(
+        registerUserdto.email,
+        `Bu Online Marked dan kelgan habar`,
+        `<div style="font-family: Arial, sans-serif; padding: 10px; border: 2px solid #ccc;">
+          <h4>Iltimos, Ushbu kodni hech kim bilan bo'lishmang va uni faqat tasdiqlash jarayonida foydalaning.</h4>
+          <h2> <b>Sizning tasdiqlash kokingiz: </b> <h1>${otp}</h1></h2>
+        </div>`
+      );
 
-      return { Message: "Siz muvofiya qatliy ro'yhaddan o'dtingiz emailingizga borgan tasdiqlash kodi orqaliy shahsingizni tasdiqlayng!",};
-
+      return {
+        Message:
+          "Siz muvofiyaqatliy ro'yhaddan o'tdingiz emailingizga borgan tasdiqlash kodi orqaliy shahsingizni tasdiqlayng!",
+      };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
@@ -64,9 +68,11 @@ export class UserService {
       if (!data) {
         throw new NotFoundException('User Not fount');
       }
-      
-      if(!data.dataValues.IsActive){
-        throw new UnauthorizedException("Siz login qilishdan oldin akkauntingizni follashtiring")
+
+      if (!data.dataValues.IsActive) {
+        throw new UnauthorizedException(
+          'Siz login qilishdan oldin akkauntingizni follashtiring'
+        );
       }
       if (
         !bcrypt.compareSync(loginUserdto.password, data.dataValues.password)
@@ -85,130 +91,93 @@ export class UserService {
       });
       return { accsestoken, refreshtoken };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-
-  async findAll() {
-    try {
-      const data = await this.Model.findAll();
-      if (!data.length) {
-        throw new NotFoundException('Not fount user');
-      }
-      return { data };
-    } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException();
-    }
-  }
-
-  async findOne(id: number, req: Request) {
-    try {
-      const users = req['user'];
-
-      const data = await this.Model.findByPk(id);
-      if (!data) {
-        throw new NotFoundException('Not fount user');
-      }
-
-      if (
-        users.id == data.dataValues.id ||
-        users.role == Role.ADMIN ||
-        users.role == Role.SUPER_ADMIN
-      ) {
-        return { data };
-      } else {
-        throw new ForbiddenException(
-          "Huquqingiz yetarliy emas, siz faqat o'z accauntingizni ko'rishingiz mumkin",
-        );
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
   async update(updateUserdto: UpdateUserdto, id: number, req: Request) {
     try {
-      const users = req['user'];
+      const users = req["user"];
       const data = await this.Model.findByPk(id);
+  
       if (!data) {
-        throw new NotFoundException('Not fount user by id');
+        throw new NotFoundException('Not found user by id');
       }
-
-      if (
-        !(
-          data.id == users.id ||
-          users.role == Role.ADMIN ||
-          users.role == Role.SUPER_ADMIN
-        )
-      ) {
+  
+      if (data.dataValues.id !== users.id && users.role !== Role.SUPER_ADMIN) {
         throw new UnauthorizedException(
-          "Malumotlarni o'zgartirishga huquqingiz yetarliy emas",
+          "Malumotlarni o'zgartirishga huquqingiz yetarliy emas"
         );
       }
+  
+      const [_, updatedData] = await this.Model.update(updateUserdto, {
+        where: { id },
+        returning: true,
+      });
+  
       return {
         statuscode: 201,
         Message: 'Update',
-        data: await this.Model.update(updateUserdto, {
-          where: { id },
-          returning: true,
-        }),
+        data: updatedData[0],
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
-
-  // async delet_accaunt(id: number, req: Request) {
-  //   try {
-  //     const users = req['user'];
-
-  //     const data = await this.Model.findByPk(id);
-  //     if (!data) {
-  //       throw new NotFoundException('Not fount user by id');
-  //     }
-  //     if (
-  //       !(
-  //         data.dataValues.id == users.id ||
-  //         users.role == Role.ADMIN ||
-  //         users.role == Role.SUPER_ADMIN
-  //       )
-  //     ) {
-  //       throw new ForbiddenException();
-  //     }
-  //     await this.Model.destroy({ where: { id } });
-  //     return { Message: 'Deleted', data: {} };
-  //   } catch (error) {
-  //     throw new InternalServerErrorException(error.message);
-  //   }
-  // }
-
-  async reset_password(data: ResetPasswordDto, req: Request) {
+  
+  async reset_password(data: ResetPasswordDto) {
     try {
-      let users = req['user'];
-
       const user = await this.Model.findOne({ where: { email: data.email } });
       if (!user) {
         throw new NotFoundException('User not fount by id');
       }
-      if (user.dataValues.id !== users.id) {
-        throw new UnauthorizedException();
-      }
+      let token = this.EmailToken({ email: data.email });
 
-      user.dataValues.password = bcrypt.hashSync(data.password, 10);
+      const resetLink = `https://usmonqulov-abduhamid-5018844.github.io/reset_password/?token=${token}`;
 
+      await this.main.sendMail(
+        data.email,
+        `Email tasdiqlash`,
+        `<h2><b>Parolni tiklash uchun quyidagi havolani bosing:</b></h2>
+        <h3><a href="${resetLink}">Reset Password</a></h3>`
+      );
       return {
-        message: 'Update Password',
-        date: await this.Model.update(user.dataValues, {
-          where: { id: users.id },
-          returning: true,
-        }),
+        statusCode: 201,
+        message: 'Parolingizni tiklash uchun emailingizga xabar yuborildi',
       };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
+    }
+  }
+
+  async new_password(data: EmailPassword) {
+    try {
+      const token = this.JWT.verify(data.token, {
+        secret: String(process.env.EMAIL_SECRET),
+      });
+
+      try {
+        const userPass = await this.Model.findOne({
+          where: { email: token.email },
+        });
+        if (!userPass) {
+          throw new NotFoundException('User topilmadi');
+        }
+        let hashpass = bcrypt.hashSync(data.password, 10);
+        userPass.dataValues.password = hashpass;
+
+        await this.Model.update(userPass.dataValues, {
+          where: { email: userPass.dataValues.email },
+        });
+        return {
+          statuscode: 201,
+          message: "Parol muvaffaqiyatli o'zgartirildi!",
+        };
+      } catch (error) {
+        return catchError(error);
+      }
+    } catch (error) {
+      return catchError(error);
     }
   }
 
@@ -217,27 +186,39 @@ export class UserService {
       let users = req['user'];
       const data = await this.Model.findByPk(users.id);
       if (!data) {
-        throw new UnauthorizedException('Not fount by id');
+        throw new UnauthorizedException('Not fount user');
+      }
+      if (data.dataValues.IsActive == false) {
+        throw new BadRequestException('Akauntingiz Faollashtirilmagan?');
       }
 
-      const accsestoken = this.AccesToken({ id: data.id, role: data.role });
+      const accsestoken = this.AccesToken({
+        id: data.dataValues.id,
+        role: data.dataValues.role,
+      });
       return { accsestoken };
     } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new InternalServerErrorException(error.message);
+      return catchError(error);
     }
   }
 
   AccesToken(peloud: { id: string; role: string }) {
     return this.JWT.sign(peloud, {
       secret: process.env.ACCS_SECRET,
-      expiresIn: '1h',
+      expiresIn: '2h',
     });
   }
   RefreshToken(peloud: { id: string; role: string }) {
     return this.JWT.sign(peloud, {
       secret: process.env.REFRESH_SECRET,
-      expiresIn: '7h',
+      expiresIn: '7d',
+    });
+  }
+
+  EmailToken(peloud: { email: string }) {
+    return this.JWT.sign(peloud, {
+      secret: process.env.EMAIL_SECRET,
+      expiresIn: '3m',
     });
   }
 }

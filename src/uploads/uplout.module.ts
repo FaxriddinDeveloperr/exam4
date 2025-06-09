@@ -3,7 +3,7 @@ import { UploadController } from './uplout.controller';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports:[JwtModule.register({})],
+  imports:[],
   controllers: [UploadController],
   providers: [],
 })
