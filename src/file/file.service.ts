@@ -5,11 +5,11 @@ import { catchError } from 'src/utils/chatchError';
 
 @Injectable()
 export class FileService {
-  private readonly filePath = resolve(__dirname, '..', '..', '..', 'uplouds');
+  private readonly filePath = resolve(__dirname,'../../../uploads');
 
   async existFile(filename: string): Promise<boolean> {
     try {
-      const file = resolve(this.filePath, filename);
+      const file = resolve(this.filePath,`${filename}`);
       if (existsSync(file)) {
         return true;
       } else {
@@ -22,7 +22,7 @@ export class FileService {
 
   async deleteFile(filename: string): Promise<void> {
     try {
-      const file = resolve(this.filePath, filename);
+      const file = resolve(this.filePath, `${filename}`);
       if (!existsSync(file)) {
         throw new BadRequestException(`File does not exist: ${filename}`);
       }
