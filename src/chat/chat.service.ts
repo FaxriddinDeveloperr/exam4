@@ -15,6 +15,7 @@ import { Request } from 'express';
 @Injectable()
 export class ChatService {
   constructor(
+    
     @InjectModel(Chat) private readonly chatModel: typeof Chat,
     @InjectModel(User) private readonly UserModel: typeof User,
     @InjectModel(Product) private readonly ProductModel: typeof Product

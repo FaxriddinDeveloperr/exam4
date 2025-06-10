@@ -12,11 +12,9 @@ import { Savat } from 'src/savat/model/savat.model';
 import { Sequelize } from 'sequelize-typescript';
 import { User } from 'src/user/model/user.model';
 import { MailService } from 'src/mail/mail.service';
-import { Market } from 'src/market/model/market.model';
 import { catchError } from 'src/utils/chatchError';
 import { Tranzaksiya } from 'src/tranzaktion/model/tranzaktion.model';
 import { Request } from 'express';
-import { Transaction } from 'sequelize';
 
 @Injectable()
 export class OrderService {
@@ -27,7 +25,6 @@ export class OrderService {
     @InjectModel(Product) private readonly ProductModel: typeof Product,
     @InjectModel(Savat) private readonly SavatModel: typeof Savat,
     @InjectModel(User) private readonly UserModel: typeof User,
-    @InjectModel(Market) private readonly MarkedModel: typeof Market,
     private readonly sequolizs: Sequelize,
     private readonly mail: MailService
   ) {}
@@ -65,10 +62,7 @@ export class OrderService {
         }
 
         if (TotalCount > product.dataValues.count) {
-          await this.SavatModel.destroy({
-            where: { userId: userId },
-            transaction: T,
-          });
+          
           throw new BadRequestException(
             `Mahsulot yetarli emas: ${product.dataValues.name} — bor: ${product.dataValues.count}`
           );

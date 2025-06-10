@@ -2,7 +2,6 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateMarketDto } from './dto/create-market.dto';
