@@ -104,7 +104,6 @@ export class OrderService {
         where: { userId: userId },
         transaction: T,
       });
-
       await T.commit();
 
       const user = await this.UserModel.findByPk(userId);
