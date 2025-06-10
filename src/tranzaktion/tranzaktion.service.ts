@@ -30,9 +30,11 @@ export class TranzaktionService {
       const data = await this.Model.findAll({
         include: [{ model: User }, { model: Orders }],
       });
+
       if (!data.length) {
         throw new NotFoundException('Not fount tranzaksiya');
       }
+
       return { statusCode: 200, data: data };
     } catch (error) {
       return catchError(error);

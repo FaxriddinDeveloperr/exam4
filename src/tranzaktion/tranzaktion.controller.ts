@@ -24,25 +24,28 @@ export class TranzaktionController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createTranzaktionDto: CreateTranzaktionDto, @Req() req:Request) {
+  create(
+    @Body() createTranzaktionDto: CreateTranzaktionDto,
+    @Req() req: Request
+  ) {
     return this.tranzaktionService.create(createTranzaktionDto, req);
   }
 
   @UseGuards(AuthGuard, RoleGuard)
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.BUYDET)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Get()
   findAll() {
     return this.tranzaktionService.findAll();
   }
   @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id',ParseIntPipe) id: number, @Req() req:Request) {
+  findOne(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
     return this.tranzaktionService.findOne(id, req);
   }
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Delete(':id')
-  remove(@Param('id',ParseIntPipe) id: number) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.tranzaktionService.remove(id);
   }
 }

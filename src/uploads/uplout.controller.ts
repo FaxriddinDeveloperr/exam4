@@ -53,7 +53,7 @@ export class UploadController {
           cb(null, name);
         },
       }),
-      fileFilter: (req, file, cb) => {
+      fileFilter: (_, file, cb) => {
         const allowedExtensions = [
           '.jpeg',
           '.png',

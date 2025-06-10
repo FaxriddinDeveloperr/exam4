@@ -8,7 +8,6 @@ export class SentGmaildto {
   email: string;
 }
 export class OtpDto {
-
   @ApiProperty({ example: 'usmonqulovabduhamid00@gmail.com' })
   @IsEmail()
   @IsNotEmpty()
