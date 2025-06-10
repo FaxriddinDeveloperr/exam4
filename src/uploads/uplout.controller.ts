@@ -23,7 +23,8 @@ import { Role } from 'src/user/dto/register-user.dto';
 import { RoleGuard } from 'src/guard/role.guard';
 import { Request } from 'express';
 
-const uploadPath = path.join(__dirname,'../../../uploads');
+const uploadPath = path.join(process.cwd(),'..','uploads');
+
 if (!existsSync(uploadPath)) {
   mkdirSync(uploadPath, { recursive: true });
 }

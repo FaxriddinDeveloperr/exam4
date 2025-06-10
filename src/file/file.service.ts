@@ -5,18 +5,18 @@ import { catchError } from 'src/utils/chatchError';
 
 @Injectable()
 export class FileService {
-  private readonly filePath = resolve(__dirname,'../../../uploads');
+  private readonly filePath = resolve(__dirname, '..', '..', '..', 'uploads');
 
   async existFile(filename: string): Promise<boolean> {
     try {
-      const file = resolve(this.filePath,`${filename}`);
+      const file = resolve(this.filePath, `${filename}`);
       if (existsSync(file)) {
         return true;
       } else {
         return false;
       }
     } catch (error) {
-      throw  catchError(error);
+      throw catchError(error);
     }
   }
 
@@ -29,6 +29,7 @@ export class FileService {
       await new Promise<void>((res, rej) => {
         unlink(file, (err) => {
           if (err) rej(err);
+          ;
           res();
         });
       });

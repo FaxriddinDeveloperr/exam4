@@ -76,9 +76,8 @@ import { FileModule } from './file/file.module';
         Chat,
         Comment,
         Notification,
-        Tranzaksiya
+        Tranzaksiya,
       ],
-
     }),
     UserModule,
     CategoryModule,
@@ -100,12 +99,12 @@ import { FileModule } from './file/file.module';
     InfoModule,
 
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname,"../../uploads"),
-      serveRoot: "/file"
+      rootPath: join(__dirname, '..', '..', 'uploads'),
+      serveRoot: '/file',
     }),
 
     FileModule,
   ],
-  controllers:[UploadController],
+  controllers: [UploadController],
 })
 export class AppModule {}
