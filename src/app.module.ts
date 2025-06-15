@@ -37,9 +37,12 @@ import { TranzaktionModule } from './tranzaktion/tranzaktion.module';
 import { Tranzaksiya } from './tranzaktion/model/tranzaktion.model';
 import { InfoModule } from './info/info.module';
 import { FileModule } from './file/file.module';
+import { DeleteModule } from './delete/delete.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
@@ -104,6 +107,7 @@ import { FileModule } from './file/file.module';
     }),
 
     FileModule,
+    DeleteModule,
   ],
   controllers: [UploadController],
 })
