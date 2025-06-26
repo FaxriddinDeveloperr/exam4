@@ -9,7 +9,9 @@ import { Op } from 'sequelize';
 export class DeleteService {
   constructor(@InjectModel(User) private readonly Model: typeof User){}
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT,{
+    timeZone: 'Asia/Tashkent',
+  })
   async handleUserCleanup() {
     const now = new Date();
     const date = new Date(now.getTime() - 48 * 60 * 60 * 1000);
